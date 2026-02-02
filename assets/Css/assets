@@ -1,6 +1,0 @@
-const CONFIG = {
-    GAME: {
-        BASE_MANA_PER_TAP: 10,
-        DAILY_COMBO_REWARD: 500
-    }
-};
