@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAMSTER QUEST | Adventure Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* СТИЛИ КАК НА СКРИНШОТЕ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: #0a0a2a;
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a2a 0%, #1a1a4a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ - ТОЧНО КАК НА СКРИНШОТЕ */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid #ffd166;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+        
+        .name-level {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .player-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .level-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .level-text {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .xp-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00cc88, #00aa66);
+            width: 20%;
+            border-radius: 3px;
+        }
+        
+        .resources {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .resource-icon {
+            font-size: 18px;
+            color: #ffd166;
+        }
+        
+        .resource-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .resource-max {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        /* ЦЕНТРАЛЬНЫЙ ЭКРАН */
+        .main-screen {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 140px);
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        /* POWER ДИСПЛЕЙ */
+        .power-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd166;
+            text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+        }
+        
+        /* РЕЖИМЫ ИГРЫ */
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mode-button.active {
+            background: rgba(255, 209, 102, 0.2);
+            border-color: #ffd166;
+        }
+        
+        .mode-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .mode-icon {
+            font-size: 24px;
+        }
+        
+        .mode-name {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* ХОМЯК (ПЕРСОНАЖ) - ТОЧНО КАК НА СКРИНШОТЕ */
+        .hamster-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+        
+        .hamster {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.5));
+            animation: hamster-bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes hamster-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .hamster-halo {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255, 209, 102, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: halo-pulse 3s infinite;
+        }
+        
+        @keyframes halo-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* КВЕСТЫ */
+        .quests-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .quests-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: white;
+        }
+        
+        .quest-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .quest-info {
+            flex: 1;
+        }
+        
+        .quest-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .quest-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00cc88, #00aa66);
+            border-radius: 3px;
+        }
+        
+        .quest-reward {
+            background: linear-gradient(135deg, #ffd166, #ffb347);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* КНОПКИ ДЕЙСТВИЙ */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .action-button {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 5px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+        
+        .action-icon {
+            font-size: 20px;
+        }
+        
+        /* НИЖНЯЯ НАВИГАЦИЯ */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            min-width: 60px;
+        }
+        
+        .nav-button.active {
+            background: rgba(255, 209, 102, 0.2);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        .nav-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* ВЕРСИЯ */
+        .version {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        /* УВЕДОМЛЕНИЯ */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            max-width: 300px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+        <div class="top-bar">
+            <div class="player-info">
+                <div class="avatar">🐹</div>
+                <div class="name-level">
+                    <div class="player-name">Rad...777</div>
+                    <div class="level-bar">
+                        <div class="level-text">20/100</div>
+                        <div class="xp-bar">
+                            <div class="xp-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="resources">
+                <div class="resource">
+                    <span class="resource-icon">⭐</span>
+                    <span class="resource-value">250</span>
+                    <span class="resource-max">/250</span>
+                </div>
+                <div class="resource">
+                    <span class="resource-icon">⚡</span>
+                    <span class="resource-value">10</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ОСНОВНОЙ ЭКРАН -->
+        <div class="main-screen">
+            <!-- POWER ДИСПЛЕЙ -->
+            <div class="power-display">Power: 1159</div>
+            
+            <!-- РЕЖИМЫ ИГРЫ -->
+            <div class="game-modes">
+                <div class="mode-button active">
+                    <div class="mode-icon">⚔️</div>
+                    <div class="mode-name">FREE</div>
+                </div>
+                <div class="mode-button">
+                    <div class="mode-icon">🏆</div>
+                    <div class="mode-name">TOURNAMENT</div>
+                </div>
+                <div class="mode-button">
+                    <div class="mode-icon">📊</div>
+                    <div class="mode-name">LEADERBOARD</div>
+                </div>
+                <div class="mode-button">
+                    <div class="mode-icon">🎯</div>
+                    <div class="mode-name">SPECIAL</div>
+                </div>
+                <div class="mode-button">
+                    <div class="mode-icon">📖</div>
+                    <div class="mode-name">HAMSTER STORY</div>
+                </div>
+                <div class="mode-button">
+                    <div class="mode-icon">🔥</div>
+                    <div class="mode-name">DUEL</div>
+                </div>
+            </div>
+            
+            <!-- ХОМЯК (ПЕРСОНАЖ) -->
+            <div class="hamster-container">
+                <div class="hamster-halo"></div>
+                <div class="hamster" id="hamster">🐹</div>
+            </div>
+            
+            <!-- КВЕСТЫ -->
+            <div class="quests-panel">
+                <div class="quests-title">Daily Quests</div>
+                
+                <div class="quest-item">
+                    <div class="quest-info">
+                        <div class="quest-name">Play 19 matches</div>
+                        <div class="quest-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #aaa;">0/19</span>
+                        </div>
+                    </div>
+                    <div class="quest-reward">
+                        <span style="font-size: 16px;">25</span>
+                    </div>
+                </div>
+                
+                <div class="quest-item">
+                    <div class="quest-info">
+                        <div class="quest-name">Place 46</div>
+                        <div class="quest-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 46%"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #aaa;">46/100</span>
+                        </div>
+                    </div>
+                    <div class="quest-reward" style="background: linear-gradient(135deg, #ffd166, #ffb347);">
+                        <span style="font-size: 12px;">Bronze</span>
+                        <span style="font-size: 16px;">+300</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 10px; color: #aaa; font-size: 12px;">
+                    6:28:10
+                </div>
+            </div>
+            
+            <!-- КНОПКИ ДЕЙСТВИЙ -->
+            <div class="action-buttons">
+                <button class="action-button" onclick="startBattle()">
+                    <div class="action-icon">⚔️</div>
+                    <div>BATTLE</div>
+                </button>
+                <button class="action-button" onclick="autoBattle()">
+                    <div class="action-icon">⚙️</div>
+                    <div>AUTO</div>
+                </button>
+                <button class="action-button" onclick="openSkillTree()">
+                    <div class="action-icon">🌳</div>
+                    <div>SKILL TREE</div>
+                </button>
+                <button class="action-button" onclick="openEarn()">
+                    <div class="action-icon">💎</div>
+                    <div>EARN</div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+        <div class="bottom-nav">
+            <div class="nav-button active" onclick="openTab('market')">
+                <div class="nav-icon">🏪</div>
+                <div class="nav-label">Market</div>
+            </div>
+            <div class="nav-button" onclick="openTab('inventory')">
+                <div class="nav-icon">🎒</div>
+                <div class="nav-label">Inventory</div>
+            </div>
+            <div class="nav-button" onclick="openTab('lobby')">
+                <div class="nav-icon">👥</div>
+                <div class="nav-label">Lobby</div>
+            </div>
+        </div>
+        
+        <!-- ВЕРСИЯ -->
+        <div class="version">Version: 1.14.71</div>
+    </div>
+    
+    <!-- УВЕДОМЛЕНИЕ -->
+    <div id="notification" class="notification">
+        <div id="notification-text"></div>
+    </div>
+
+    <script>
+        // ИГРОВЫЕ ДАННЫЕ
+        const gameData = {
+            level: 20,
+            xp: 0,
+            xpMax: 1000,
+            stars: 250,
+            energy: 10,
+            power: 1159,
+            dailyMatches: 0,
+            rank: 46
+        };
+        
+        // АНИМАЦИЯ ХОМЯКА
+        function animateHamster() {
+            const hamster = document.getElementById('hamster');
+            const expressions = ['🐹', '😊', '😮', '😠', '😴', '🌟'];
+            
+            // Меняем выражение лица
+            setInterval(() => {
+                hamster.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    hamster.textContent = expressions[Math.floor(Math.random() * expressions.length)];
+                    hamster.style.transform = 'scale(1)';
+                }, 150);
+            }, 3000);
+            
+            // Движения
+            setInterval(() => {
+                hamster.style.transform = `translateY(${Math.random() * 5 - 2.5}px) rotate(${Math.random() * 10 - 5}deg)`;
+            }, 500);
+        }
+        
+        // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+        function updateUI() {
+            document.querySelector('.resource-value:nth-child(2)').textContent = gameData.stars;
+            document.querySelector('.resource-value:nth-child(4)').textContent = gameData.energy;
+            
+            // Обновляем прогресс квестов
+            const matchProgress = document.querySelector('.quest-item:nth-child(1) .progress-fill');
+            const matchText = document.querySelector('.quest-item:nth-child(1) .quest-progress span');
+            const rankProgress = document.querySelector('.quest-item:nth-child(2) .progress-fill');
+            const rankText = document.querySelector('.quest-item:nth-child(2) .quest-progress span');
+            
+            if (matchProgress && matchText) {
+                const matchPercent = (gameData.dailyMatches / 19) * 100;
+                matchProgress.style.width = matchPercent + '%';
+                matchText.textContent = `${gameData.dailyMatches}/19`;
+            }
+            
+            if (rankProgress && rankText) {
+                const rankPercent = (gameData.rank / 100) * 100;
+                rankProgress.style.width = rankPercent + '%';
+                rankText.textContent = `${gameData.rank}/100`;
+            }
+        }
+        
+        // НАЧАТЬ БИТВУ
+        function startBattle() {
+            if (gameData.energy <= 0) {
+                showNotification('Not enough energy!');
+                return;
+            }
+            
+            gameData.energy--;
+            gameData.dailyMatches++;
+            
+            // Анимация атаки хомяка
+            const hamster = document.getElementById('hamster');
+            hamster.style.transform = 'scale(1.5)';
+            hamster.style.filter = 'drop-shadow(0 0 20px red)';
+            
+            setTimeout(() => {
+                hamster.style.transform = '';
+                hamster.style.filter = '';
+            }, 300);
+            
+            // Случайный результат
+            const win = Math.random() > 0.4;
+            const starsEarned = Math.floor(Math.random() * 8) + 3;
+            
+            if (win) {
+                gameData.stars = Math.min(gameData.stars + starsEarned, 250);
+                gameData.xp += Math.floor(Math.random() * 15) + 5;
+                showNotification(`Victory! +${starsEarned}⭐`);
+                
+                // Эффект победы
+                createVictoryEffect();
+            } else {
+                showNotification('Defeat... Try again!');
+            }
+            
+            updateUI();
+            checkLevelUp();
+        }
+        
+        // АВТО-БИТВА
+        function autoBattle() {
+            showNotification('Auto battle activated for 30 minutes');
+        }
+        
+        // ОТКРЫТЬ ДЕРЕВО НАВЫКОВ
+        function openSkillTree() {
+            showNotification('Skill Tree opened');
+        }
+        
+        // ОТКРЫТЬ EARN
+        function openEarn() {
+            showNotification('Earn section opened');
+        }
+        
+        // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+        function openTab(tab) {
+            const buttons = document.querySelectorAll('.nav-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.nav-button').classList.add('active');
+            
+            const tabNames = {
+                'market': 'Market',
+                'inventory': 'Inventory',
+                'lobby': 'Lobby'
+            };
+            
+            showNotification(`${tabNames[tab]} opened`);
+        }
+        
+        // ПРОВЕРКА УРОВНЯ
+        function checkLevelUp() {
+            if (gameData.xp >= gameData.xpMax) {
+                gameData.level++;
+                gameData.xp = 0;
+                gameData.xpMax = Math.floor(gameData.xpMax * 1.2);
+                
+                showNotification(`LEVEL UP! Now level ${gameData.level}`);
+                
+                // Эффект уровня
+                createLevelUpEffect();
+                
+                updateUI();
+            }
+        }
+        
+        // ЭФФЕКТ ПОБЕДЫ
+        function createVictoryEffect() {
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => {
+                    const star = document.createElement('div');
+                    star.textContent = '⭐';
+                    star.style.position = 'fixed';
+                    star.style.top = '40%';
+                    star.style.left = '50%';
+                    star.style.fontSize = '20px';
+                    star.style.transform = 'translate(-50%, -50%) scale(0)';
+                    star.style.opacity = '0';
+                    star.style.transition = 'all 0.5s ease-out';
+                    star.style.zIndex = '1000';
+                    
+                    document.querySelector('.game-container').appendChild(star);
+                    
+                    setTimeout(() => {
+                        star.style.opacity = '1';
+                        star.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 80;
+                        star.style.opacity = '0';
+                        star.style.transform = `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`;
+                        
+                        setTimeout(() => star.remove(), 500);
+                    }, 300);
+                }, i * 100);
+            }
+        }
+        
+        // ЭФФЕКТ УРОВНЯ
+        function createLevelUpEffect() {
+            const colors = ['#ffd166', '#ff6b35', '#00cc88', '#4a90e2'];
+            
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.top = '40%';
+                    particle.style.left = '50%';
+                    particle.style.width = '8px';
+                    particle.style.height = '8px';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.borderRadius = '50%';
+                    particle.style.transform = 'translate(-50%, -50%) scale(0)';
+                    particle.style.zIndex = '1000';
+                    
+                    document.querySelector('.game-container').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 120;
+                        particle.style.transform = `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`;
+                        particle.style.opacity = '0';
+                        
+                        setTimeout(() => particle.remove(), 500);
+                    }, 400);
+                }, i * 50);
+            }
+        }
+        
+        // УВЕДОМЛЕНИЯ
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            
+            text.textContent = message;
+            
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ИНИЦИАЛИЗАЦИЯ
+        document.addEventListener('DOMContentLoaded', () => {
+            animateHamster();
+            updateUI();
+            
+            // Восстановление энергии
+            setInterval(() => {
+                if (gameData.energy < 10) {
+                    gameData.energy++;
+                    updateUI();
+                }
+            }, 60000);
+            
+            // Обновление таймера
+            setInterval(() => {
+                const timer = document.querySelector('.quests-panel > div:last-child');
+                if (timer) {
+                    // Обратный отсчет
+                    const time = timer.textContent.split(':');
+                    let hours = parseInt(time[0]);
+                    let minutes = parseInt(time[1]);
+                    let seconds = parseInt(time[2]);
+                    
+                    if (seconds > 0) seconds--;
+                    else {
+                        seconds = 59;
+                        if (minutes > 0) minutes--;
+                        else {
+                            minutes = 59;
+                            if (hours > 0) hours--;
+                        }
+                    }
+                    
+                    timer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+            
+            // Telegram WebApp
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                tg.ready();
+            }
+        });
+    </script>
+</body>
+</html>
