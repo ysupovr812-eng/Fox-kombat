@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 FOX KOMBAT | Epic Magic Duel</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ОСНОВНЫЕ СТИЛИ */
+        :root {
+            --primary: #8a2be2;
+            --secondary: #00bfff;
+            --accent: #ff416c;
+            --dark: #0a0a1a;
+            --darker: #050510;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffd700;
+            --danger: #ff416c;
+            --energy: #00ffff;
+            --epic: #ff00ff;
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-green: #00ff88;
+            --neon-purple: #9d00ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at 50% 0%, 
+                #050510 0%, 
+                #0a0a1a 30%, 
+                #151530 70%, 
+                #0a0a1a 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* НЕОНОВЫЙ ФОН */
+        .neon-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 191, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 65, 108, 0.1) 0%, transparent 50%);
+            filter: blur(60px);
+        }
+        
+        /* ПАРТИКЛЫ */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* АНИМИРОВАННЫЙ ГРАДИЕНТ */
+        .gradient-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                #8a2be2,
+                #00bfff,
+                #ff416c,
+                #8a2be2
+            );
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+            opacity: 0.1;
+            z-index: -3;
+        }
+        
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* ПРИВЕТСТВЕННЫЙ ЭКРАН */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 16, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        #welcome-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+        
+        .welcome-container {
+            background: linear-gradient(145deg, 
+                rgba(20, 20, 40, 0.9) 0%,
+                rgba(10, 10, 26, 0.9) 100%);
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 480px;
+            width: 100%;
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--primary), var(--secondary)) 1;
+            box-shadow: 
+                0 0 60px rgba(138, 43, 226, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--primary), 
+                var(--secondary), 
+                var(--accent), 
+                var(--primary));
+            border-radius: 32px;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .logo {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            from { text-shadow: 0 0 20px rgba(138, 43, 226, 0.5); }
+            to { text-shadow: 0 0 40px rgba(0, 191, 255, 0.7), 0 0 60px rgba(138, 43, 226, 0.5); }
+        }
+        
+        .welcome-title {
+            color: var(--secondary);
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px var(--secondary);
+            font-weight: 700;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+            background: rgba(138, 43, 226, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 1.8em;
+            margin-right: 15px;
+            min-width: 40px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .feature-text {
+            flex: 1;
+            font-size: 1.1em;
+        }
+        
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .welcome-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .welcome-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .welcome-btn:hover::before {
+            left: 100%;
+        }
+        
+        .welcome-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 35px rgba(138, 43, 226, 0.4),
+                0 0 30px rgba(0, 191, 255, 0.3);
+        }
+        
+        .welcome-btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .welcome-btn.secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .welcome-btn.secondary::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .welcome-btn.secondary:hover::after {
+            opacity: 1;
+        }
+        
+        /* ОСНОВНОЙ ИНТЕРФЕЙС ИГРЫ */
+        #game-ui {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .top-bar {
+            background: linear-gradient(135deg, 
+                rgba(20, 20, 40, 0.9) 0%,
+                rgba(10, 10, 26, 0.9) 100%);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .top-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .player-identity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            animation: avatarPulse 3s infinite;
+        }
+        
+        @keyframes avatarPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(138, 43, 226, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 191, 255, 0.7); }
+        }
+        
+        .player-info h2 {
+            font-size: 1.5em;
+            background: linear-gradient(45deg, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .level-badge {
+            background: linear-gradient(45deg, var(--warning), var(--accent));
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* ДИСПЛЕЙ МАНЫ */
+        .mana-display {
+            background: linear-gradient(135deg, 
+                rgba(0, 191, 255, 0.15), 
+                rgba(138, 43, 226, 0.15));
+            padding: 15px 25px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid rgba(0, 191, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 160px;
+            box-shadow: 0 0 25px rgba(0, 191, 255, 0.2);
+        }
+        
+        .mana-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: manaShine 3s infinite;
+        }
+        
+        @keyframes manaShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .mana-icon {
+            font-size: 1.8em;
+            animation: manaPulse 2s infinite;
+            filter: drop-shadow(0 0 10px var(--secondary));
+        }
+        
+        @keyframes manaPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        #mana-count {
+            font-size: 1.8em;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--energy), #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        /* ПРОГРЕСС БАР */
+        .xp-container {
+            margin-top: 20px;
+        }
+        
+        .xp-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .xp-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning));
+            width: 30%;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .xp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: xpShine 2s infinite;
+        }
+        
+        @keyframes xpShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* НАВИГАЦИЯ */
+        .nav-container {
+            margin-top: 20px;
+        }
+        
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            color: white;
+            padding: 18px 5px;
+            border-radius: 15px;
+            font-size: 1.8em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .nav-btn:hover::before {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 25px rgba(138, 43, 226, 0.3),
+                0 0 20px rgba(0, 191, 255, 0.2);
+        }
+        
+        .nav-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(45deg, var(--danger), var(--accent));
+            color: white;
+            font-size: 0.6em;
+            padding: 4px 8px;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 65, 108, 0.5);
+        }
+        
+        /* КОНТЕНТ */
+        #content {
+            background: linear-gradient(135deg, 
+                rgba(20, 20, 40, 0.8) 0%,
+                rgba(10, 10, 26, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            margin-top: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            min-height: 450px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.3),
+                inset 0 0 20px rgba(255, 255, 255, 0.03);
+        }
+        
+        #content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        /* СТРАНИЦА БАШНИ */
+        .tower-page {
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+        }
+        
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        /* ОБЛАСТЬ ТАПА */
+        .tap-container {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        .tap-area {
+            background: linear-gradient(135deg, 
+                rgba(138, 43, 226, 0.15), 
+                rgba(0, 191, 255, 0.15));
+            border-radius: 30px;
+            padding: 50px 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tap-area::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            border-radius: 32px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tap-area:hover::before {
+            opacity: 1;
+        }
+        
+        .tap-area:active {
+            transform: scale(0.97);
+        }
+        
+        .wizard-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
+        }
+        
+        .wizard-avatar {
+            font-size: 5em;
+            animation: wizardFloat 4s infinite ease-in-out;
+            text-shadow: 
+                0 0 30px var(--primary),
+                0 0 60px var(--secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        @keyframes wizardFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg) scale(1); 
+            }
+            25% { 
+                transform: translateY(-15px) rotate(5deg) scale(1.05); 
+            }
+            50% { 
+                transform: translateY(0) rotate(0deg) scale(1); 
+            }
+            75% { 
+                transform: translateY(-10px) rotate(-5deg) scale(1.03); 
+            }
+        }
+        
+        .magic-orb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.3), transparent 70%);
+            border-radius: 50%;
+            animation: orbPulse 3s infinite;
+            z-index: 1;
+        }
+        
+        @keyframes orbPulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1); 
+                opacity: 0.8;
+            }
+        }
+        
+        .tap-hint {
+            font-size: 1.3em;
+            color: var(--secondary);
+            margin-top: 20px;
+            font-weight: 600;
+            text-shadow: 0 0 10px var(--secondary);
+        }
+        
+        .tap-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 25px;
+            font-size: 1em;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* КАРТОЧКИ */
+        .card {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.05) 0%,
+                rgba(20, 20, 40, 0.2) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(138, 43, 226, 0.2);
+        }
+        
+        .card h3 {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card h3 i {
+            font-size: 1.2em;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding-left: 10px;
+        }
+        
+        .card li {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card li::before {
+            content: '✦';
+            color: var(--secondary);
+            font-size: 0.9em;
+        }
+        
+        /* КНОПКИ */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 100%;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 30px rgba(138, 43, 226, 0.4),
+                0 0 30px rgba(0, 191, 255, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* ПОЛЕ ВВОДА */
+        .combo-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .combo-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.3);
+        }
+        
+        /* ПЛАВАЮЩИЙ ТЕКСТ */
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            color: var(--success);
+            font-weight: 800;
+            font-size: 1.8em;
+            text-shadow: 
+                0 0 10px var(--success),
+                0 0 20px rgba(0, 255, 136, 0.5);
+            z-index: 1000;
+            animation: floatUp 1.2s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(1.3);
+            }
+        }
+        
+        /* УВЕДОМЛЕНИЯ */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 350px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(138, 43, 226, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-content {
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+        @media (max-width: 480px) {
+            .welcome-container,
+            .top-bar,
+            #content {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 2.8em;
+            }
+            
+            .wizard-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .wizard-avatar {
+                font-size: 4em;
+            }
+            
+            .magic-orb {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .nav-btn {
+                padding: 15px 5px;
+                font-size: 1.5em;
+            }
+            
+            .btn {
+                padding: 16px;
+            }
+            
+            .notification {
+                right: 15px;
+                left: 15px;
+                max-width: none;
+            }
+        }
+        
+        /* АНИМАЦИИ ПОЯВЛЕНИЯ */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ЭФФЕКТЫ ЧАСТИЦ */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+        
+        /* СВЕТЛЯЧКИ */
+        .firefly {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 50%;
+            filter: blur(1px);
+            opacity: 0.7;
+            animation: fireflyFloat 15s infinite linear;
+        }
+        
+        @keyframes fireflyFloat {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(100px, -100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ФОНОВЫЕ ЭФФЕКТЫ -->
+    <div class="gradient-animation"></div>
+    <div class="neon-bg"></div>
+    <div id="particles-js"></div>
+    
+    <!-- ПРИВЕТСТВЕННЫЙ ЭКРАН -->
+    <div id="welcome-screen">
+        <div class="welcome-container slide-up">
+            <div class="logo">FOX KOMBAT</div>
+            <h2 class="welcome-title">ЭПИЧЕСКАЯ МАГИЧЕСКАЯ ДУЭЛЬ</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">Собирай ману тапом</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-text">Используй секретные комбо</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <div class="feature-text">Изучай мощные заклинания</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚔️</div>
+                    <div class="feature-text">Сражайся на дуэлях</div>
+                </div>
+            </div>
+            
+            <div class="welcome-buttons">
+                <button id="get-bonus-btn" class="welcome-btn">
+                    <i class="fas fa-gem"></i> ПОЛУЧИТЬ СТАРТОВЫЙ БОНУС
+                </button>
+                <button id="skip-bonus-btn" class="welcome-btn secondary">
+                    ПРОДОЛЖИТЬ БЕЗ БОНУСА
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС ИГРЫ -->
+    <div id="game-ui" class="hidden">
+        <nav class="top-bar fade-in">
+            <div class="player-header">
+                <div class="player-identity">
+                    <div class="avatar">🧙</div>
+                    <div class="player-info">
+                        <h2 id="player-name">МАГ</h2>
+                        <div id="level-badge" class="level-badge">УРОВЕНЬ 1</div>
+                    </div>
+                </div>
+                <div class="mana-display">
+                    <span class="mana-icon">✨</span>
+                    <span id="mana-count">100</span>
+                </div>
+            </div>
+            
+            <div class="xp-container">
+                <div class="xp-label">
+                    <span>Опыт</span>
+                    <span id="xp-current">0</span>/<span id="xp-needed">1000</span>
+                </div>
+                <div class="xp-bar">
+                    <div id="xp-fill" class="xp-fill"></div>
+                </div>
+            </div>
+            
+            <div class="nav-container">
+                <div class="nav-buttons">
+                    <button class="nav-btn active" onclick="loadPage('tower')" title="Башня">
+                        🏰<span class="badge"></span>
+                    </button>
+                    <button class="nav-btn" onclick="loadPage('spells')" title="Заклинания">
+                        📖<span class="badge" id="spells-badge">1</span>
+                    </button>
+                    <button class="nav-btn" onclick="loadPage('duel')" title="Дуэли">
+                        ⚔️<span class="badge" id="duels-badge">3</span>
+                    </button>
+                    <button class="nav-btn" onclick="loadPage('guild')" title="Гильдия">
+                        👥<span class="badge"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <div id="content">
+            <!-- Страницы загружаются сюда -->
+        </div>
+    </div>
+    
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div id="notification" class="notification">
+        <div id="notification-content" class="notification-content"></div>
+    </div>
+
+    <!-- Библиотека для частиц -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <script>
+        // ========== КОНФИГУРАЦИЯ ==========
+        const CONFIG = {
+            BASE_MANA_PER_TAP: 10,
+            DAILY_COMBO_REWARD: 500,
+            DUEL_COST: 50,
+            DUEL_WIN_REWARD: 100,
+            XP_PER_LEVEL: 1000
+        };
+
+        // ========== ИГРОВЫЕ ДАННЫЕ ==========
+        let gameData = {
+            mana: 100,
+            level: 1,
+            xp: 0,
+            totalTaps: 0,
+            totalMana: 100,
+            spells: ['fireball'],
+            combosUsed: [],
+            duelWins: 0,
+            duelLosses: 0,
+            lastComboDate: null,
+            tapMultiplier: 1
+        };
+
+        let user = { 
+            id: Math.floor(Math.random() * 1000000), 
+            first_name: "МАГ"
+        };
+        
+        let currentPage = 'tower';
+        let lastTapTime = 0;
+        let tapStreak = 0;
+        
+        // ========== ЭФФЕКТЫ ЧАСТИЦ ==========
+        function initParticles() {
+            if (window.particlesJS) {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: ["#8a2be2", "#00bfff", "#ff416c"] },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.3, random: true },
+                        size: { value: 3, random: true },
+                        line_linked: {
+                            enable: true,
+                            distance: 150,
+                            color: "#8a2be2",
+                            opacity: 0.2,
+                            width: 1
+                        },
+                        move: {
+                            enable: true,
+                            speed: 1,
+                            direction: "none",
+                            random: true,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: { enable: true, mode: "repulse" },
+                            onclick: { enable: true, mode: "push" }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // ========== ПРИВЕТСТВЕННЫЙ ЭКРАН ==========
+        function showWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            welcomeScreen.classList.remove('hidden');
+        }
+        
+        function hideWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const gameUI = document.getElementById('game-ui');
+            
+            // Анимация исчезновения
+            welcomeScreen.classList.add('hidden');
+            
+            setTimeout(() => {
+                gameUI.classList.remove('hidden');
+                loadGame();
+                loadPage('tower');
+                initParticles();
+            }, 800);
+        }
+        
+        function giveStartBonus() {
+            console.log("🎁 Выдача стартового бонуса...");
+            
+            if (localStorage.getItem('foxkombat_epic_bonus')) {
+                showNotification("🎁 Бонус уже получен!", "warning");
+                hideWelcomeScreen();
+                return;
+            }
+            
+            // Эффектный бонус
+            gameData.mana += 1500; // Больше маны
+            gameData.xp += 300;    // Больше опыта
+            gameData.tapMultiplier = 1.5; // Множитель тапа
+            
+            // Сохраняем
+            saveGame();
+            localStorage.setItem('foxkombat_epic_bonus', 'claimed');
+            
+            // Эффекты
+            createFireworks();
+            showNotification("✨ ЭПИЧЕСКИЙ БОНУС: +1500 маны, +300 опыта, x1.5 к тапу!", "success");
+            
+            // Звуковой эффект (если бы был)
+            setTimeout(() => {
+                hideWelcomeScreen();
+            }, 1500);
+        }
+        
+        function skipBonus() {
+            console.log("⏭️ Пропуск бонуса");
+            localStorage.setItem('foxkombat_epic_bonus', 'skipped');
+            hideWelcomeScreen();
+        }
+        
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        function tap() {
+            const now = Date.now();
+            const timeDiff = now - lastTapTime;
+            
+            if (timeDiff < 50) return;
+            
+            // Стрик тапов
+            if (timeDiff < 1000) {
+                tapStreak++;
+                if (tapStreak % 10 === 0) {
+                    showNotification(`🔥 СТРИК ${tapStreak}! x${1 + (tapStreak/100)}`, "warning");
+                }
+            } else {
+                tapStreak = 1;
+            }
+            
+            // Расчет маны
+            let manaGained = CONFIG.BASE_MANA_PER_TAP * gameData.tapMultiplier;
+            let bonus = 0;
+            
+            // Бонус за скорость
+            if (timeDiff < 200) {
+                bonus = Math.floor(Math.random() * 8) + 2;
+            }
+            
+            // Крит тап (10% шанс)
+            const isCritical = Math.random() < 0.1;
+            if (isCritical) {
+                manaGained *= 2.5;
+                showFloatingText(`💥 КРИТИЧЕСКИЙ! +${manaGained}`, "#ff416c");
+                createCriticalEffect(event);
+            } else {
+                showFloatingText(`+${manaGained}${bonus > 0 ? `+${bonus}` : ''}`, "#00ff88");
+            }
+            
+            manaGained += bonus;
+            
+            // Обновление данных
+            gameData.mana += manaGained;
+            gameData.totalTaps++;
+            gameData.totalMana += manaGained;
+            gameData.xp += Math.floor(manaGained / 5);
+            lastTapTime = now;
+            
+            // Эффекты
+            createTapParticles(event);
+            updateManaDisplay();
+            updateXPBar();
+            checkLevelUp();
+            
+            // Анимация маны
+            const manaDisplay = document.querySelector('.mana-display');
+            manaDisplay.style.animation = 'none';
+            setTimeout(() => {
+                manaDisplay.style.animation = 'manaShine 3s infinite';
+            }, 10);
+            
+            saveGame();
+            
+            return manaGained;
+        }
+        
+        function useDailyCombo(combo) {
+            const today = new Date().toLocaleDateString();
+            
+            if (gameData.lastComboDate === today) {
+                showNotification("⏳ Комбо уже использовано сегодня!", "warning");
+                return false;
+            }
+            
+            const normalizedCombo = combo.toUpperCase().trim();
+            
+            if (normalizedCombo === 'ALT+MANA' || normalizedCombo === 'ALTMANA') {
+                // Награда
+                gameData.mana += CONFIG.DAILY_COMBO_REWARD;
+                gameData.xp += 100;
+                gameData.lastComboDate = today;
+                
+                // Эффекты
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        showFloatingText('⭐', '#ffd700');
+                    }, i * 100);
+                }
+                
+                // Уведомление
+                showNotification(`🎮 СЕКРЕТНОЕ КОМБО! +${CONFIG.DAILY_COMBO_REWARD} маны`, "success");
+                
+                // Сохранение
+                saveGame();
+                updateManaDisplay();
+                updateXPBar();
+                
+                return true;
+            }
+            
+            showNotification("❌ Неверное комбо! Попробуй ALT+MANA", "error");
+            return false;
+        }
+        
+        function startDuel() {
+            if (gameData.mana < CONFIG.DUEL_COST) {
+                showNotification(`❌ Нужно ${CONFIG.DUEL_COST} маны!`, "error");
+                return;
+            }
+            
+            gameData.mana -= CONFIG.DUEL_COST;
+            
+            // Шанс победы зависит от уровня
+            const winChance = 0.4 + (gameData.level * 0.07);
+            const win = Math.random() < winChance;
+            
+            if (win) {
+                const reward = CONFIG.DUEL_WIN_REWARD * gameData.level;
+                gameData.mana += reward;
+                gameData.duelWins++;
+                gameData.xp += 80;
+                
+                createVictoryEffect();
+                showNotification(`🏆 ПОБЕДА! +${reward} маны`, "success");
+            } else {
+                gameData.duelLosses++;
+                gameData.xp += 20;
+                showNotification("💥 ПОРАЖЕНИЕ...", "error");
+            }
+            
+            // Обновление бейджа
+            document.getElementById('duels-badge').textContent = 
+                gameData.duelWins + gameData.duelLosses > 0 ? '!' : '';
+            
+            saveGame();
+            updateManaDisplay();
+            updateXPBar();
+            checkLevelUp();
+        }
+        
+        // ========== UI СИСТЕМА ==========
+        function loadPage(page) {
+            currentPage = page;
+            
+            // Обновление навигации
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const content = document.getElementById('content');
+            content.classList.remove('fade-in');
+            
+            // Загрузка страницы
+            setTimeout(() => {
+                switch(page) {
+                    case 'tower':
+                        content.innerHTML = getTowerPage();
+                        setupTowerEvents();
+                        break;
+                    case 'spells':
+                        content.innerHTML = getSpellsPage();
+                        break;
+                    case 'duel':
+                        content.innerHTML = getDuelPage();
+                        break;
+                    case 'guild':
+                        content.innerHTML = getGuildPage();
+                        break;
+                }
+                
+                content.classList.add('fade-in');
+            }, 50);
+        }
+        
+        function getTowerPage() {
+            const nextLevelXP = gameData.level * CONFIG.XP_PER_LEVEL;
+            const xpProgress = Math.min((gameData.xp / nextLevelXP) * 100, 100);
+            
+            return `
+                <div class="tower-page">
+                    <h2 class="page-title">🏰 МАГИЧЕСКАЯ БАШНЯ</h2>
+                    <p class="page-subtitle">Сила в твоих пальцах</p>
+                    
+                    <div class="tap-container">
+                        <div class="wizard-container">
+                            <div class="magic-orb"></div>
+                            <div class="wizard-avatar">🧙‍♂️</div>
+                        </div>
+                        
+                        <div class="tap-area" id="tap-area">
+                            <div class="tap-hint" id="tap-hint">ТАПНИ ПО МАГУ!</div>
+                            <div class="tap-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">+${Math.floor(CONFIG.BASE_MANA_PER_TAP * gameData.tapMultiplier)}</div>
+                                    <div class="stat-label">маны за тап</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${gameData.totalTaps}</div>
+                                    <div class="stat-label">всего тапов</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">x${gameData.tapMultiplier.toFixed(1)}</div>
+                                    <div class="stat-label">множитель</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card slide-up">
+                        <h3><i class="fas fa-chart-line"></i> СТАТИСТИКА</h3>
+                        <ul>
+                            <li>Общая мана: <strong>${gameData.totalMana.toLocaleString()}</strong></li>
+                            <li>Дуэли: <strong>${gameData.duelWins}</strong>⚔️<strong>${gameData.duelLosses}</strong></li>
+                            <li>Уровень: <strong>${gameData.level}</strong></li>
+                            <li>Опыт: <strong>${gameData.xp}</strong>/<strong>${gameData.level * CONFIG.XP_PER_LEVEL}</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card slide-up">
+                        <h3><i class="fas fa-gamepad"></i> СЕКРЕТНОЕ КОМБО</h3>
+                        <input type="text" 
+                               id="combo-input" 
+                               class="combo-input"
+                               placeholder="ВВЕДИ: ALT+MANA"
+                               maxlength="20">
+                        <button class="btn" id="combo-btn">
+                            <i class="fas fa-bolt"></i> АКТИВИРОВАТЬ КОМБО
+                        </button>
+                        <p style="font-size: 0.9em; color: rgba(255,255,255,0.6); margin-top: 15px;">
+                            ⭐ Дает +${CONFIG.DAILY_COMBO_REWARD} маны раз в день
+                            ${gameData.lastComboDate ? `<br>📅 Использовано: ${gameData.lastComboDate}` : ''}
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getSpellsPage() {
+            const spells = [
+                { name: 'Огненный шар', desc: 'Наносит 150 урона', icon: '🔥', cost: 0, unlocked: true },
+                { name: 'Ледяная стрела', desc: 'Замедляет врага', icon: '❄️', cost: 500, unlocked: gameData.level >= 2 },
+                { name: 'Электрический разряд', desc: 'Мгновенный удар', icon: '⚡', cost: 1200, unlocked: gameData.level >= 3 },
+                { name: 'Магический щит', desc: 'Защита от атак', icon: '🛡️', cost: 2500, unlocked: gameData.level >= 5 }
+            ];
+            
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">📖 КНИГА ТЁМНЫХ ЗАКЛИНАНИЙ</h2>
+                    <p class="page-subtitle">Познай силу магии</p>
+                    
+                    ${spells.map(spell => `
+                        <div class="card slide-up" style="opacity: ${spell.unlocked ? '1' : '0.6'}; margin: 20px 0;">
+                            <div style="display: flex; align-items: center; gap: 20px;">
+                                <div style="font-size: 3em; min-width: 60px;">${spell.icon}</div>
+                                <div style="flex: 1; text-align: left;">
+                                    <h3 style="margin: 0 0 8px 0; color: var(--secondary);">${spell.name}</h3>
+                                    <p style="margin: 0 0 12px 0; color: rgba(255,255,255,0.8);">${spell.desc}</p>
+                                    ${spell.unlocked ? 
+                                        `<p style="color: var(--success);"><i class="fas fa-check-circle"></i> ИЗУЧЕНО</p>` : 
+                                        `<p style="color: var(--warning);">
+                                            <i class="fas fa-lock"></i> Требуется ${spell.cost} маны и ${spell.cost/500} уровень
+                                        </p>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        <i class="fas fa-arrow-left"></i> ВЕРНУТЬСЯ В БАШНЮ
+                    </button>
+                </div>
+            `;
+        }
+        
+        function getDuelPage() {
+            const totalDuels = gameData.duelWins + gameData.duelLosses;
+            const winRate = totalDuels > 0 ? Math.round((gameData.duelWins / totalDuels) * 100) : 0;
+            
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">⚔️ АРЕНА ДУЭЛЕЙ</h2>
+                    <p class="page-subtitle">Испытай свою силу</p>
+                    
+                    <div class="card slide-up">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin: 25px 0;">
+                            <div>
+                                <div style="font-size: 2.5em; color: var(--success);">${gameData.duelWins}</div>
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.7);">ПОБЕД</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2.5em; color: var(--danger);">${gameData.duelLosses}</div>
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.7);">ПОРАЖЕНИЙ</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2.5em; color: var(--warning);">${winRate}%</div>
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.7);">ПОБЕД</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 25px 0;">
+                            <p style="margin: 10px 0; font-size: 1.1em;">
+                                <i class="fas fa-coins" style="color: var(--warning);"></i>
+                                Стоимость: <strong style="color: var(--secondary);">${CONFIG.DUEL_COST} маны</strong>
+                            </p>
+                            <p style="margin: 10px 0; font-size: 1.1em;">
+                                <i class="fas fa-trophy" style="color: var(--success);"></i>
+                                Награда: <strong style="color: var(--success);">${CONFIG.DUEL_WIN_REWARD * gameData.level} маны</strong>
+                            </p>
+                            <p style="margin: 10px 0; font-size: 1.1em;">
+                                <i class="fas fa-chart-pie" style="color: var(--accent);"></i>
+                                Шанс победы: <strong style="color: var(--accent);">${Math.round((0.4 + (gameData.level * 0.07)) * 100)}%</strong>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="startDuel()" style="margin: 20px 0; padding: 20px; font-size: 1.2em;">
+                        <i class="fas fa-fist-raised"></i> НАЧАТЬ ДУЭЛЬ
+                    </button>
+                    <br>
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        <i class="fas fa-arrow-left"></i> ВЕРНУТЬСЯ В БАШНЮ
+                    </button>
+                </div>
+            `;
+        }
+        
+        function getGuildPage() {
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">👥 ГИЛЬДИЯ МАГОВ</h2>
+                    <p class="page-subtitle">Объединяйся и побеждай</p>
+                    
+                    <div class="card slide-up">
+                        <div style="font-size: 5em; margin: 30px 0; color: var(--primary);">🏰</div>
+                        <h3 style="color: var(--secondary); margin-bottom: 20px;">ТЫ ПОКА ОДИНОЧКА</h3>
+                        <p style="margin: 15px 0; color: rgba(255,255,255,0.8); font-size: 1.1em; line-height: 1.6;">
+                            Присоединяйся к гильдии, чтобы получать бонусы,<br>
+                            участвовать в рейдах и соревноваться с другими гильдиями!
+                        </p>
+                        
+                        <div style="margin: 30px 0;">
+                            <button class="btn" onclick="showNotification('Для создания гильдии нужно:\\n\\n✨ 10,000 маны\\n📈 5 уровень\\n👥 3 друга в игре\\n\\nСобирай ресурсы и возвращайся!')" 
+                                    style="margin-bottom: 15px; padding: 18px;">
+                                <i class="fas fa-plus-circle"></i> СОЗДАТЬ ГИЛЬДИЮ
+                            </button>
+                            <br>
+                            <button class="btn-secondary" onclick="showNotification('🔍 Ищем активные гильдии для тебя...\\n\\n📊 Проверяем статистику...\\n🎯 Подбираем подходящий вариант...\\n\\nПока гильдий не найдено.\\nСоздай первую и стань легендой!')" 
+                                    style="padding: 18px;">
+                                <i class="fas fa-search"></i> НАЙТИ ГИЛЬДИЮ
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        <i class="fas fa-arrow-left"></i> НАЗАД В БАШНЮ
+                    </button>
+                </div>
+            `;
+        }
+        
+        function setupTowerEvents() {
+            const tapArea = document.getElementById('tap-area');
+            const tapHint = document.getElementById('tap-hint');
+            
+            if (tapArea) {
+                // Мышь
+                tapArea.onclick = function(e) {
+                    tap();
+                    
+                    // Анимация нажатия
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                    
+                    // Меняем подсказку
+                    if (tapHint) {
+                        const hints = [
+                            "СИЛЬНЕЕ!",
+                            "БЫСТРЕЕ!",
+                            "МОЩНЕЕ!",
+                            "ЭПИЧНО!",
+                            "ВОТ ЭТО ДА!",
+                            "НЕВЕРОЯТНО!"
+                        ];
+                        tapHint.textContent = hints[Math.floor(Math.random() * hints.length)];
+                        tapHint.style.color = `hsl(${Math.random() * 360}, 100%, 65%)`;
+                        
+                        setTimeout(() => {
+                            tapHint.textContent = "ТАПНИ ЕЩЁ!";
+                            tapHint.style.color = '';
+                        }, 500);
+                    }
+                };
+                
+                // Касания
+                tapArea.ontouchstart = function(e) {
+                    e.preventDefault();
+                    tap();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                };
+            }
+            
+            // Кнопка комбо
+            const comboBtn = document.getElementById('combo-btn');
+            const comboInput = document.getElementById('combo-input');
+            
+            if (comboBtn && comboInput) {
+                comboBtn.onclick = function() {
+                    if (comboInput.value.trim()) {
+                        useDailyCombo(comboInput.value);
+                        comboInput.value = '';
+                    } else {
+                        showNotification("Введи комбо ALT+MANA!", "warning");
+                    }
+                };
+                
+                comboInput.onkeypress = function(e) {
+                    if (e.key === 'Enter') {
+                        comboBtn.click();
+                    }
+                };
+            }
+        }
+        
+        // ========== ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ==========
+        function showFloatingText(text, color = '#00ff88') {
+            const floatText = document.createElement('div');
+            floatText.className = 'floating-text';
+            floatText.textContent = text;
+            floatText.style.color = color;
+            floatText.style.left = (Math.random() * 70 + 15) + '%';
+            floatText.style.top = '50%';
+            
+            document.body.appendChild(floatText);
+            setTimeout(() => floatText.remove(), 1200);
+        }
+        
+        function createTapParticles(event) {
+            const x = event ? event.clientX : window.innerWidth / 2;
+            const y = event ? event.clientY : window.innerHeight / 2;
+            
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.cssText = `
+                        position: fixed;
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: ${Math.random() * 10 + 5}px;
+                        height: ${Math.random() * 10 + 5}px;
+                        background: ${i % 3 === 0 ? 'var(--primary)' : i % 3 === 1 ? 'var(--secondary)' : 'var(--accent)'};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 999;
+                        transform: translate(-50%, -50%);
+                        animation: particleFloat 0.8s ease-out forwards;
+                    `;
+                    
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 800);
+                }, i * 50);
+            }
+            
+            // Добавляем CSS для анимации
+            if (!document.getElementById('particle-style')) {
+                const style = document.createElement('style');
+                style.id = 'particle-style';
+                style.textContent = `
+                    @keyframes particleFloat {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(1); 
+                            opacity: 1; 
+                        }
+                        100% { 
+                            transform: translate(
+                                ${(Math.random() - 0.5) * 200}px, 
+                                ${-Math.random() * 150 - 50}px
+                            ) scale(0); 
+                            opacity: 0; 
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function createCriticalEffect(event) {
+            const x = event ? event.clientX : window.innerWidth / 2;
+            const y = event ? event.clientY : window.innerHeight / 2;
+            
+            // Взрыв
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.cssText = `
+                        position: fixed;
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: ${Math.random() * 15 + 5}px;
+                        height: ${Math.random() * 15 + 5}px;
+                        background: linear-gradient(45deg, var(--danger), var(--warning));
+                        border-radius: ${Math.random() > 0.5 ? '50%' : '0%'};
+                        pointer-events: none;
+                        z-index: 999;
+                        transform: translate(-50%, -50%);
+                        animation: criticalExplode 0.6s ease-out forwards;
+                    `;
+                    
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 600);
+                }, i * 30);
+            }
+            
+            // Шоковая волна
+            const wave = document.createElement('div');
+            wave.style.cssText = `
+                position: fixed;
+                left: ${x}px;
+                top: ${y}px;
+                width: 20px;
+                height: 20px;
+                border: 3px solid var(--danger);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 998;
+                transform: translate(-50%, -50%);
+                animation: shockwave 0.8s ease-out forwards;
+            `;
+            
+            document.body.appendChild(wave);
+            setTimeout(() => wave.remove(), 800);
+            
+            // Добавляем CSS для анимации
+            if (!document.getElementById('critical-style')) {
+                const style = document.createElement('style');
+                style.id = 'critical-style';
+                style.textContent = `
+                    @keyframes criticalExplode {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(1) rotate(0deg); 
+                            opacity: 1; 
+                        }
+                        100% { 
+                            transform: translate(
+                                ${(Math.random() - 0.5) * 300}px, 
+                                ${(Math.random() - 0.5) * 300}px
+                            ) scale(0) rotate(${Math.random() * 360}deg); 
+                            opacity: 0; 
+                        }
+                    }
+                    
+                    @keyframes shockwave {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(1); 
+                            opacity: 1;
+                            border-width: 3px;
+                        }
+                        100% { 
+                            transform: translate(-50%, -50%) scale(6); 
+                            opacity: 0;
+                            border-width: 1px;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function createVictoryEffect() {
+            // Конфетти
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.cssText = `
+                        position: fixed;
+                        left: ${Math.random() * 100}%;
+                        top: -20px;
+                        width: ${Math.random() * 15 + 5}px;
+                        height: ${Math.random() * 15 + 5}px;
+                        background: ${i % 5 === 0 ? 'var(--success)' : i % 5 === 1 ? 'var(--warning)' : i % 5 === 2 ? 'var(--primary)' : i % 5 === 3 ? 'var(--secondary)' : 'var(--accent)'};
+                        border-radius: ${Math.random() > 0.7 ? '50%' : '0%'};
+                        pointer-events: none;
+                        z-index: 999;
+                        animation: victoryConfetti ${Math.random() * 2 + 1.5}s ease-out forwards;
+                    `;
+                    
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 50);
+            }
+            
+            // Добавляем CSS для конфетти
+            if (!document.getElementById('victory-style')) {
+                const style = document.createElement('style');
+                style.id = 'victory-style';
+                style.textContent = `
+                    @keyframes victoryConfetti {
+                        0% { 
+                            transform: translateY(0) rotate(0deg); 
+                            opacity: 1; 
+                        }
+                        100% { 
+                            transform: translateY(100vh) rotate(${Math.random() * 720}deg); 
+                            opacity: 0; 
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function createFireworks() {
+            // Создаем несколько фейерверков
+            for (let f = 0; f < 5; f++) {
+                setTimeout(() => {
+                    const x = Math.random() * 80 + 10;
+                    const y = Math.random() * 50 + 25;
+                    
+                    // Взрыв
+                    for (let i = 0; i < 20; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.cssText = `
+                            position: fixed;
+                            left: ${x}%;
+                            top: ${y}%;
+                            width: ${Math.random() * 8 + 4}px;
+                            height: ${Math.random() * 8 + 4}px;
+                            background: hsl(${Math.random() * 360}, 100%, 65%);
+                            border-radius: 50%;
+                            pointer-events: none;
+                            z-index: 999;
+                            transform: translate(-50%, -50%);
+                            animation: fireworkExplode 1.2s ease-out forwards;
+                        `;
+                        
+                        document.body.appendChild(particle);
+                        setTimeout(() => particle.remove(), 1200);
+                    }
+                }, f * 300);
+            }
+            
+            // Добавляем CSS для фейерверков
+            if (!document.getElementById('firework-style')) {
+                const style = document.createElement('style');
+                style.id = 'firework-style';
+                style.textContent = `
+                    @keyframes fireworkExplode {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(1); 
+                            opacity: 1; 
+                        }
+                        100% { 
+                            transform: translate(
+                                ${(Math.random() - 0.5) * 200}px, 
+                                ${(Math.random() - 0.5) * 200}px
+                            ) scale(0); 
+                            opacity: 0; 
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            
+            const icons = {
+                success: '🎉',
+                error: '💥',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            content.innerHTML = `${icons[type] || '✨'} ${message}`;
+            
+            // Цвета для разных типов
+            const colors = {
+                success: 'linear-gradient(135deg, var(--success), var(--neon-green))',
+                error: 'linear-gradient(135deg, var(--danger), var(--accent))',
+                warning: 'linear-gradient(135deg, var(--warning), #ff9d00)',
+                info: 'linear-gradient(135deg, var(--primary), var(--secondary))'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            
+            // Показываем
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Скрываем через 3 секунды
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ========== СИСТЕМА УРОВНЕЙ ==========
+        function checkLevelUp() {
+            const neededXP = gameData.level * CONFIG.XP_PER_LEVEL;
+            
+            if (gameData.xp >= neededXP) {
+                gameData.level++;
+                gameData.xp -= neededXP;
+                
+                // Бонус за уровень
+                gameData.mana += gameData.level * 100;
+                gameData.tapMultiplier += 0.1;
+                
+                showNotification(`🎇 УРОВЕНЬ ${gameData.level}! +${gameData.level * 100} маны, множитель x${gameData.tapMultiplier.toFixed(1)}`, "success");
+                createFireworks();
+                
+                updateLevelDisplay();
+                updateXPBar();
+                saveGame();
+            }
+        }
+        
+        function updateLevelDisplay() {
+            const levelBadge = document.getElementById('level-badge');
+            if (levelBadge) {
+                levelBadge.textContent = `УРОВЕНЬ ${gameData.level}`;
+            }
+        }
+        
+        function updateXPBar() {
+            const neededXP = gameData.level * CONFIG.XP_PER_LEVEL;
+            const percent = Math.min((gameData.xp / neededXP) * 100, 100);
+            
+            document.getElementById('xp-fill').style.width = percent + '%';
+            document.getElementById('xp-current').textContent = gameData.xp;
+            document.getElementById('xp-needed').textContent = neededXP;
+        }
+        
+        // ========== СИСТЕМА СОХРАНЕНИЯ ==========
+        function saveGame() {
+            try {
+                localStorage.setItem(`fox_kombat_epic_${user.id}`, JSON.stringify(gameData));
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+            }
+        }
+        
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem(`fox_kombat_epic_${user.id}`);
+                
+                if (saved) {
+                    const loadedData = JSON.parse(saved);
+                    
+                    // Проверяем дату комбо
+                    const today = new Date().toLocaleDateString();
+                    if (loadedData.lastComboDate !== today) {
+                        loadedData.lastComboDate = null;
+                    }
+                    
+                    gameData = {
+                        ...gameData,
+                        ...loadedData
+                    };
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+            }
+            
+            updateManaDisplay();
+            updateLevelDisplay();
+            updateXPBar();
+            
+            // Обновляем бейджи
+            document.getElementById('duels-badge').textContent = 
+                gameData.duelWins + gameData.duelLosses > 0 ? '!' : '';
+            document.getElementById('spells-badge').textContent = 
+                gameData.spells.length > 1 ? '!' : '';
+        }
+        
+        function updateManaDisplay() {
+            const manaElement = document.getElementById('mana-count');
+            if (manaElement) {
+                // Анимация изменения числа
+                const oldValue = parseInt(manaElement.textContent) || 0;
+                const newValue = gameData.mana;
+                
+                if (oldValue !== newValue) {
+                    animateCounter(manaElement, oldValue, newValue);
+                } else {
+                    manaElement.textContent = newValue.toLocaleString();
+                }
+            }
+        }
+        
+        function animateCounter(element, start, end) {
+            const duration = 600;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Эффект "easeOutBack"
+                const easeOutBack = (x) => {
+                    const c1 = 1.70158;
+                    const c3 = c1 + 1;
+                    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+                };
+                
+                const eased = easeOutBack(progress);
+                const current = Math.floor(start + (end - start) * eased);
+                
+                element.textContent = current.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = end.toLocaleString();
+                }
+            }
+            
+            update();
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        function initGame() {
+            console.log("🚀 Запуск FOX KOMBAT с эпической графикой!");
+            
+            // Инициализация частиц
+            initParticles();
+            
+            // Назначаем обработчики кнопок приветствия
+            const bonusBtn = document.getElementById('get-bonus-btn');
+            const skipBtn = document.getElementById('skip-bonus-btn');
+            
+            if (bonusBtn) {
+                bonusBtn.addEventListener('click', giveStartBonus);
+                bonusBtn.onclick = giveStartBonus;
+            }
+            
+            if (skipBtn) {
+                skipBtn.addEventListener('click', skipBonus);
+                skipBtn.onclick = skipBonus;
+            }
+            
+            // Проверяем, нужно ли показывать приветствие
+            if (localStorage.getItem('foxkombat_epic_bonus')) {
+                console.log("Игра уже запускалась, скрываем приветствие");
+                setTimeout(() => {
+                    hideWelcomeScreen();
+                }, 500);
+            } else {
+                console.log("Первый запуск, показываем приветствие");
+                showWelcomeScreen();
+            }
+            
+            // Автосохранение каждые 30 секунд
+            setInterval(saveGame, 30000);
+            
+            console.log("✅ Игра инициализирована!");
+        }
+        
+        // Делаем функции глобальными
+        window.loadPage = loadPage;
+        window.startDuel = startDuel;
+        window.showNotification = showNotification;
+        
+        // Запускаем игру
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
