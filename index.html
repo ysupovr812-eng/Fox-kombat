@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamster Kombat - Анимированные Персонажи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            font-size: 2.5rem;
+        }
+        
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .character-card {
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            border: 3px solid;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Цвета рамок для разных персонажей */
+        .character-card:nth-child(1) { border-color: #4A90E2; }
+        .character-card:nth-child(2) { border-color: #FF6B35; }
+        .character-card:nth-child(3) { border-color: #00D4FF; }
+        .character-card:nth-child(4) { border-color: #39FF14; }
+        .character-card:nth-child(5) { border-color: #FFD700; }
+        .character-card:nth-child(6) { border-color: #FF1493; }
+        
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .character-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .character-level {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        /* ОБЩИЕ СТИЛИ ДЛЯ АНИМАЦИЙ */
+        .animation-area {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 1. БОЕВОЙ ХОМЯК */
+        .warrior-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .warrior-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #D4A574, #B88656);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: warrior-breathe 2s infinite;
+        }
+        
+        .warrior-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #D4A574, #B88656);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+            animation: warrior-head-move 3s infinite;
+        }
+        
+        .warrior-helmet {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: #4A90E2;
+            border-radius: 20px 20px 10px 10px;
+            top: 5px;
+            left: 35px;
+            animation: helmet-shine 2s infinite;
+        }
+        
+        .warrior-sword {
+            position: absolute;
+            width: 50px;
+            height: 5px;
+            background: linear-gradient(90deg, #999, #666);
+            top: 80px;
+            right: 30px;
+            transform-origin: left center;
+            animation: sword-swing 1.5s infinite;
+        }
+        
+        .warrior-shield {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background: #8B4513;
+            border-radius: 10px;
+            top: 70px;
+            left: 20px;
+            animation: shield-block 2s infinite;
+        }
+        
+        @keyframes warrior-breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes warrior-head-move {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        
+        @keyframes helmet-shine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        @keyframes sword-swing {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(30deg); }
+        }
+        
+        @keyframes shield-block {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-10px); }
+        }
+        
+        /* 2. МАГ-ХОМЯК */
+        .mage-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .mage-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #8A2BE2, #4B0082);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: mage-float 3s infinite ease-in-out;
+        }
+        
+        .mage-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #8A2BE2, #4B0082);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+        }
+        
+        .mage-hat {
+            position: absolute;
+            width: 60px;
+            height: 50px;
+            background: #000;
+            border-radius: 30px 30px 0 0;
+            top: -30px;
+            left: 45px;
+            animation: hat-wobble 2s infinite;
+        }
+        
+        .magic-orb {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #00FFFF, #0088CC);
+            border-radius: 50%;
+            top: 60px;
+            right: 40px;
+            animation: orb-spin 2s infinite linear;
+        }
+        
+        .magic-sparks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .spark {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00FFFF;
+            border-radius: 50%;
+            animation: spark-float 2s infinite linear;
+        }
+        
+        @keyframes mage-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-2deg); }
+            75% { transform: translateY(5px) rotate(2deg); }
+        }
+        
+        @keyframes hat-wobble {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        @keyframes orb-spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        @keyframes spark-float {
+            0% { transform: translate(0, 0) scale(0); opacity: 0; }
+            50% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 1; }
+            100% { transform: translate(calc(var(--tx) * 2), calc(var(--ty) * 2)) scale(0); opacity: 0; }
+        }
+        
+        /* 3. КИБЕР-ХОМЯК */
+        .cyber-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .cyber-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #00D4FF, #0088CC);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: cyber-pulse 1s infinite;
+        }
+        
+        .cyber-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00D4FF, #0088CC);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+        }
+        
+        .cyber-visor {
+            position: absolute;
+            width: 50px;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            top: 30px;
+            left: 50px;
+            animation: visor-scan 3s infinite;
+        }
+        
+        .cyber-implants {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .implant {
+            position: absolute;
+            width: 15px;
+            height: 30px;
+            background: linear-gradient(180deg, #39FF14, #00AA00);
+            border-radius: 7px;
+            animation: implant-glow 2s infinite;
+        }
+        
+        .energy-beams {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .beam {
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background: #39FF14;
+            animation: beam-sweep 2s infinite;
+        }
+        
+        @keyframes cyber-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px #00D4FF;
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px #00D4FF;
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes visor-scan {
+            0%, 100% { background: rgba(0, 0, 0, 0.7); }
+            50% { background: rgba(57, 255, 20, 0.7); }
+        }
+        
+        @keyframes implant-glow {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes beam-sweep {
+            0% { transform: rotate(0deg) translateY(0); opacity: 0; }
+            50% { transform: rotate(var(--angle)) translateY(50px); opacity: 1; }
+            100% { transform: rotate(var(--angle)) translateY(100px); opacity: 0; }
+        }
+        
+        /* 4. ТРЕЙДЕР-ХОМЯК */
+        .trader-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .trader-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FFB347);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: money-vibrate 0.5s infinite;
+        }
+        
+        .trader-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FFB347);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+        }
+        
+        .money-bag {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background: #8B4513;
+            border-radius: 10px;
+            top: 60px;
+            right: 30px;
+            animation: bag-bounce 1s infinite;
+        }
+        
+        .coins {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .coin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #B8860B);
+            border-radius: 50%;
+            animation: coin-float 3s infinite linear;
+        }
+        
+        .chart-lines {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            bottom: 10px;
+            left: 10px;
+            border: 2px solid #00D4FF;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .chart-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #39FF14;
+            animation: chart-move 2s infinite linear;
+        }
+        
+        @keyframes money-vibrate {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        @keyframes bag-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes coin-float {
+            0% { 
+                transform: translateY(100px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes chart-move {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* 5. НИНДЗЯ-ХОМЯК */
+        .ninja-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .ninja-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #2F4F4F, #1C1C1C);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: ninja-vanish 4s infinite;
+        }
+        
+        .ninja-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #2F4F4F, #1C1C1C);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+        }
+        
+        .ninja-mask {
+            position: absolute;
+            width: 50px;
+            height: 30px;
+            background: #000;
+            border-radius: 25px;
+            top: 25px;
+            left: 50px;
+        }
+        
+        .shuriken {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #666;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            top: 60px;
+            right: 40px;
+            animation: shuriken-spin 1s infinite linear;
+        }
+        
+        .smoke {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .smoke-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: smoke-drift 3s infinite linear;
+        }
+        
+        @keyframes ninja-vanish {
+            0%, 70%, 100% { opacity: 1; }
+            85% { opacity: 0.3; }
+        }
+        
+        @keyframes shuriken-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes smoke-drift {
+            0% { 
+                transform: translate(0, 0) scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: translate(var(--dx), var(--dy)) scale(1);
+                opacity: 0.5;
+            }
+            100% { 
+                transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 6. КОРОЛЕВСКИЙ ХОМЯК */
+        .royal-hamster {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .royal-body {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35);
+            border-radius: 50px 50px 40px 40px;
+            top: 40px;
+            left: 25px;
+            animation: royal-glow 2s infinite;
+        }
+        
+        .royal-head {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35);
+            border-radius: 50%;
+            top: 10px;
+            left: 40px;
+        }
+        
+        .crown {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF4500, #FF0000);
+            border-radius: 10px 10px 0 0;
+            top: -20px;
+            left: 45px;
+            animation: crown-sparkle 1.5s infinite;
+        }
+        
+        .crown-jewel {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00FFFF;
+            border-radius: 50%;
+            animation: jewel-twinkle 1s infinite;
+        }
+        
+        .royal-aura {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 3px solid #FFD700;
+            border-radius: 50%;
+            top: -15px;
+            left: -15px;
+            animation: aura-expand 3s infinite;
+        }
+        
+        @keyframes royal-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+            }
+        }
+        
+        @keyframes crown-sparkle {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+        
+        @keyframes jewel-twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes aura-expand {
+            0%, 100% { 
+                transform: scale(0.9);
+                opacity: 0.3;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+        }
+        
+        /* ОБЩИЕ СТАТИСТИКИ */
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-name {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        /* КНОПКИ */
+        .character-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+        
+        /* ИНФОРМАЦИОННАЯ ПАНЕЛЬ */
+        .info-panel {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 3px solid #ffd700;
+            text-align: center;
+        }
+        
+        .info-panel h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .current-character-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .total-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .total-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .total-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HAMSTER KOMBAT - АНИМИРОВАННЫЕ ПЕРСОНАЖИ</h1>
+        
+        <div class="characters-grid">
+            <!-- 1. БОЕВОЙ ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">WARRIOR HAMSTER</div>
+                    <div class="character-level">Lv. 25</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="warrior-hamster">
+                        <div class="warrior-body"></div>
+                        <div class="warrior-head"></div>
+                        <div class="warrior-helmet"></div>
+                        <div class="warrior-sword"></div>
+                        <div class="warrior-shield"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Attack</span>
+                        <span class="stat-value">95</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Defense</span>
+                        <span class="stat-value">85</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">70</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">HP</span>
+                        <span class="stat-value">150</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('warrior')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('warrior')">Upgrade</button>
+                </div>
+            </div>
+            
+            <!-- 2. МАГ-ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">MAGE HAMSTER</div>
+                    <div class="character-level">Lv. 23</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="mage-hamster">
+                        <div class="mage-body"></div>
+                        <div class="mage-head"></div>
+                        <div class="mage-hat"></div>
+                        <div class="magic-orb"></div>
+                        <div class="magic-sparks" id="mageSparks"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Magic</span>
+                        <span class="stat-value">98</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Mana</span>
+                        <span class="stat-value">120</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">65</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">AOE</span>
+                        <span class="stat-value">85</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('mage')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('mage')">Upgrade</button>
+                </div>
+            </div>
+            
+            <!-- 3. КИБЕР-ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">CYBER HAMSTER</div>
+                    <div class="character-level">Lv. 27</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="cyber-hamster">
+                        <div class="cyber-body"></div>
+                        <div class="cyber-head"></div>
+                        <div class="cyber-visor"></div>
+                        <div class="cyber-implants" id="cyberImplants"></div>
+                        <div class="energy-beams" id="energyBeams"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Tech</span>
+                        <span class="stat-value">96</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Energy</span>
+                        <span class="stat-value">140</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">80</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Power</span>
+                        <span class="stat-value">92</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('cyber')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('cyber')">Upgrade</button>
+                </div>
+            </div>
+            
+            <!-- 4. ТРЕЙДЕР-ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">TRADER HAMSTER</div>
+                    <div class="character-level">Lv. 20</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="trader-hamster">
+                        <div class="trader-body"></div>
+                        <div class="trader-head"></div>
+                        <div class="money-bag"></div>
+                        <div class="coins" id="coins"></div>
+                        <div class="chart-lines">
+                            <div class="chart-line"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Profit</span>
+                        <span class="stat-value">+35%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Gold</span>
+                        <span class="stat-value">+25%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Deals</span>
+                        <span class="stat-value">5/day</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Luck</span>
+                        <span class="stat-value">88</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('trader')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('trader')">Upgrade</button>
+                </div>
+            </div>
+            
+            <!-- 5. НИНДЗЯ-ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">NINJA HAMSTER</div>
+                    <div class="character-level">Lv. 24</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="ninja-hamster">
+                        <div class="ninja-body"></div>
+                        <div class="ninja-head"></div>
+                        <div class="ninja-mask"></div>
+                        <div class="shuriken"></div>
+                        <div class="smoke" id="smoke"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Stealth</span>
+                        <span class="stat-value">99</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Critical</span>
+                        <span class="stat-value">95%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">96</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Dodge</span>
+                        <span class="stat-value">90%</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('ninja')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('ninja')">Upgrade</button>
+                </div>
+            </div>
+            
+            <!-- 6. КОРОЛЕВСКИЙ ХОМЯК -->
+            <div class="character-card">
+                <div class="character-header">
+                    <div class="character-name">ROYAL HAMSTER</div>
+                    <div class="character-level">Lv. 30</div>
+                </div>
+                
+                <div class="animation-area">
+                    <div class="royal-hamster">
+                        <div class="royal-body"></div>
+                        <div class="royal-head"></div>
+                        <div class="crown">
+                            <div class="crown-jewel" style="top: 5px; left: 10px;"></div>
+                            <div class="crown-jewel" style="top: 5px; left: 30px;"></div>
+                            <div class="crown-jewel" style="top: 5px; left: 50px;"></div>
+                        </div>
+                        <div class="royal-aura"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">All Stats</span>
+                        <span class="stat-value">+50%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Aura</span>
+                        <span class="stat-value">Legend</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">XP Bonus</span>
+                        <span class="stat-value">+100%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Gold</span>
+                        <span class="stat-value">+75%</span>
+                    </div>
+                </div>
+                
+                <div class="character-actions">
+                    <button class="action-btn" onclick="selectCharacter('royal')">Select</button>
+                    <button class="action-btn" onclick="upgradeCharacter('royal')">Upgrade</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ИНФОРМАЦИОННАЯ ПАНЕЛЬ -->
+        <div class="info-panel">
+            <h2>CURRENT CHARACTER: <span id="currentCharName">WARRIOR HAMSTER</span></h2>
+            
+            <div class="current-character-display">
+                <div style="width: 100px; height: 100px; position: relative;">
+                    <div style="width: 100%; height: 100%; background: #D4A574; border-radius: 50%;"></div>
+                </div>
+                <div style="text-align: left;">
+                    <p style="color: #ccc; margin-bottom: 10px;">Selected character is ready for battle!</p>
+                    <p style="color: #ffd700; font-weight: bold;">Power: <span id="currentPower">1,850</span></p>
+                </div>
+            </div>
+            
+            <div class="total-stats">
+                <div class="total-stat">
+                    <div>Total Power</div>
+                    <div class="total-stat-value" id="totalPower">8,450</div>
+                </div>
+                <div class="total-stat">
+                    <div>Characters</div>
+                    <div class="total-stat-value">6/12</div>
+                </div>
+                <div class="total-stat">
+                    <div>Collection</div>
+                    <div class="total-stat-value">50%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCharacter = 'warrior';
+        
+        // ИНИЦИАЛИЗАЦИЯ АНИМАЦИЙ
+        function initAnimations() {
+            // Искры для мага
+            const mageSparks = document.getElementById('mageSparks');
+            for (let i = 0; i < 12; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                spark.style.cssText = `
+                    --tx: ${Math.random() * 100 - 50}px;
+                    --ty: ${Math.random() * 100 - 50}px;
+                    animation-delay: ${Math.random() * 2}s;
+                `;
+                mageSparks.appendChild(spark);
+            }
+            
+            // Импланты для кибер-хомяка
+            const cyberImplants = document.getElementById('cyberImplants');
+            for (let i = 0; i < 6; i++) {
+                const implant = document.createElement('div');
+                implant.className = 'implant';
+                implant.style.cssText = `
+                    left: ${20 + i * 20}px;
+                    top: ${60 + Math.sin(i) * 20}px;
+                    animation-delay: ${i * 0.3}s;
+                `;
+                cyberImplants.appendChild(implant);
+            }
+            
+            // Энергетические лучи
+            const energyBeams = document.getElementById('energyBeams');
+            for (let i = 0; i < 8; i++) {
+                const beam = document.createElement('div');
+                beam.className = 'beam';
+                beam.style.cssText = `
+                    --angle: ${i * 45}deg;
+                    left: 75px;
+                    top: 75px;
+                    animation-delay: ${i * 0.25}s;
+                `;
+                energyBeams.appendChild(beam);
+            }
+            
+            // Монетки для трейдера
+            const coins = document.getElementById('coins');
+            for (let i = 0; i < 15; i++) {
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 3}s;
+                    animation-duration: ${2 + Math.random() * 2}s;
+                `;
+                coins.appendChild(coin);
+            }
+            
+            // Дым для ниндзя
+            const smoke = document.getElementById('smoke');
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'smoke-particle';
+                particle.style.cssText = `
+                    --dx: ${Math.random() * 100 - 50}px;
+                    --dy: ${Math.random() * 100 - 50}px;
+                    left: ${50 + Math.random() * 50}px;
+                    top: ${50 + Math.random() * 50}px;
+                    animation-delay: ${Math.random() * 3}s;
+                `;
+                smoke.appendChild(particle);
+            }
+        }
+        
+        // ВЫБОР ПЕРСОНАЖА
+        function selectCharacter(character) {
+            currentCharacter = character;
+            
+            const characterNames = {
+                'warrior': 'WARRIOR HAMSTER',
+                'mage': 'MAGE HAMSTER',
+                'cyber': 'CYBER HAMSTER',
+                'trader': 'TRADER HAMSTER',
+                'ninja': 'NINJA HAMSTER',
+                'royal': 'ROYAL HAMSTER'
+            };
+            
+            const characterPower = {
+                'warrior': '1,850',
+                'mage': '1,720',
+                'cyber': '2,150',
+                'trader': '1,550',
+                'ninja': '1,980',
+                'royal': '2,750'
+            };
+            
+            document.getElementById('currentCharName').textContent = characterNames[character];
+            document.getElementById('currentPower').textContent = characterPower[character];
+            
+            // Анимация выбора
+            const cards = document.querySelectorAll('.character-card');
+            cards.forEach(card => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+            });
+            
+            // Подсвечиваем выбранного
+            event.target.closest('.character-card').style.transform = 'translateY(-15px)';
+            event.target.closest('.character-card').style.boxShadow = '0 20px 40px rgba(255, 215, 0, 0.3)';
+            
+            // Уведомление
+            showNotification(`Selected: ${characterNames[character]}`);
+        }
+        
+        // УЛУЧШЕНИЕ ПЕРСОНАЖА
+        function upgradeCharacter(character) {
+            const costs = {
+                'warrior': 500,
+                'mage': 450,
+                'cyber': 600,
+                'trader': 400,
+                'ninja': 550,
+                'royal': 1000
+            };
+            
+            const characterNames = {
+                'warrior': 'Warrior Hamster',
+                'mage': 'Mage Hamster',
+                'cyber': 'Cyber Hamster',
+                'trader': 'Trader Hamster',
+                'ninja': 'Ninja Hamster',
+                'royal': 'Royal Hamster'
+            };
+            
+            showNotification(`Upgrading ${characterNames[character]} for ${costs[character]} stars!`);
+            
+            // Анимация улучшения
+            const card = event.target.closest('.character-card');
+            card.style.animation = 'upgrade-pulse 0.5s';
+            setTimeout(() => {
+                card.style.animation = '';
+            }, 500);
+        }
+        
+        // УВЕДОМЛЕНИЕ
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff6b35, #ff8c42);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 1000;
+                animation: notification-slide 0.3s ease-out;
+                font-weight: bold;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'notification-slide-out 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+        
+        // АВТОМАТИЧЕСКАЯ СМЕНА АНИМАЦИЙ
+        function autoChangeAnimations() {
+            setInterval(() => {
+                const cards = document.querySelectorAll('.character-card');
+                const randomCard = cards[Math.floor(Math.random() * cards.length)];
+                
+                // Временное усиление анимации
+                randomCard.style.transform = 'translateY(-10px) scale(1.02)';
+                randomCard.style.transition = 'all 0.5s';
+                
+                setTimeout(() => {
+                    randomCard.style.transform = 'translateY(0) scale(1)';
+                }, 1000);
+            }, 3000);
+        }
+        
+        // ДОБАВЛЕНИЕ СТИЛЕЙ ДЛЯ АНИМАЦИЙ
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-slide {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes notification-slide-out {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            @keyframes upgrade-pulse {
+                0%, 100% { 
+                    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+                }
+                50% { 
+                    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // ЗАПУСК
+        document.addEventListener('DOMContentLoaded', () => {
+            initAnimations();
+            autoChangeAnimations();
+            
+            // Авто-обновление общего показателя силы
+            setInterval(() => {
+                const totalPower = document.getElementById('totalPower');
+                let current = parseInt(totalPower.textContent.replace(',', ''));
+                current += Math.floor(Math.random() * 10);
+                totalPower.textContent = current.toLocaleString();
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
