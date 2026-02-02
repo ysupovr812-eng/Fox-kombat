@@ -87,3 +87,39 @@ class GameLogic {
 }
 
 const Game = new GameLogic();
+
+// В классе GameLogic добавьте:
+createFloatingText(text) {
+    const floatText = document.createElement('div');
+    floatText.className = 'floating-text';
+    floatText.textContent = text;
+    floatText.style.left = '50%';
+    floatText.style.top = '40%';
+    
+    document.body.appendChild(floatText);
+    
+    setTimeout(() => {
+        if (floatText.parentNode) {
+            floatText.parentNode.removeChild(floatText);
+        }
+    }, 1000);
+}
+
+updateUI() {
+    const manaElement = document.getElementById('mana-count');
+    if (manaElement) {
+        manaElement.textContent = this.mana;
+    }
+    
+    const nameElement = document.getElementById('player-name');
+    if (nameElement && TelegramApp.getUser()) {
+        nameElement.textContent = TelegramApp.getUser().first_name || "Маг";
+    }
+    
+    // Обновляем уровень на странице башни
+    const levelElement = document.getElementById('tower-level');
+    if (levelElement) {
+        levelElement.textContent = this.level;
+    }
+}
+
