@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Fox Kombat | Магическая Дуэль</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --secondary: #00bfff;
+            --accent: #ff416c;
+            --dark: #0a0a1a;
+            --darker: #050510;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffd700;
+            --danger: #ff416c;
+            --energy: #00ffff;
+            --epic: #ff00ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at top, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Анимированный фон */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        /* Загрузка */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--darker);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+        
+        #loading.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader {
+            text-align: center;
+            position: relative;
+        }
+        
+        .crystal {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            margin: 0 auto 25px;
+            border-radius: 20px;
+            animation: crystalPulse 2s infinite ease-in-out;
+            position: relative;
+            box-shadow: 0 0 50px var(--primary);
+        }
+        
+        .crystal:before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        
+        @keyframes crystalPulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg); 
+                box-shadow: 0 0 50px var(--primary);
+            }
+            50% { 
+                transform: scale(1.1) rotate(180deg); 
+                box-shadow: 0 0 80px var(--secondary);
+            }
+        }
+        
+        /* Основной интерфейс */
+        #main-ui {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+            padding: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        #main-ui.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Верхняя панель */
+        .top-bar {
+            background: rgba(20, 20, 40, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .top-bar:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        #player-name {
+            font-size: 1.4em;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+        }
+        
+        .level-badge {
+            background: linear-gradient(45deg, var(--warning), var(--accent));
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .mana-display {
+            background: linear-gradient(135deg, rgba(0, 191, 255, 0.2), rgba(138, 43, 226, 0.2));
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-width: 140px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mana-display:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .mana-display.active:before {
+            animation: manaFlow 2s infinite;
+        }
+        
+        @keyframes manaFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .mana-icon {
+            font-size: 1.3em;
+            animation: manaPulse 1.5s infinite;
+        }
+        
+        @keyframes manaPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        #mana-count {
+            font-size: 1.5em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .xp-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning));
+            width: 30%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .xp-fill:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: xpShine 2s infinite;
+        }
+        
+        @keyframes xpShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Навигация */
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            color: white;
+            padding: 15px 5px;
+            border-radius: 15px;
+            font-size: 1.8em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .nav-btn:hover:before,
+        .nav-btn:active:before {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.3);
+        }
+        
+        .nav-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.5em;
+            padding: 3px 6px;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Контент */
+        #content {
+            background: rgba(20, 20, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Башня */
+        .tower-page {
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+        }
+        
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        /* Область тапа */
+        .tap-area {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(0, 191, 255, 0.1));
+            border-radius: 30px;
+            padding: 40px 20px;
+            margin: 30px 0;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tap-area:active {
+            transform: scale(0.95);
+            border-color: var(--primary);
+        }
+        
+        .wizard-avatar {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: wizardFloat 3s infinite ease-in-out;
+            text-shadow: 0 0 30px var(--primary);
+            position: relative;
+        }
+        
+        .wizard-avatar:after {
+            content: '✨';
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: sparkle 2s infinite;
+        }
+        
+        @keyframes wizardFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        
+        .tap-hint {
+            font-size: 1.2em;
+            color: var(--secondary);
+            margin-top: 15px;
+        }
+        
+        .tap-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Карточки */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .card li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card li:before {
+            content: '✨';
+            font-size: 0.8em;
+        }
+        
+        /* Кнопки */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Поле ввода */
+        .combo-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .combo-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+        }
+        
+        /* Плавающий текст */
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            color: var(--success);
+            font-weight: 800;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            z-index: 1000;
+            animation: floatUp 1s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+        
+        /* Ачивки */
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .achievement {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .achievement.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+        }
+        
+        .achievement-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 300px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        /* Прогресс уровней */
+        .level-progress {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+        
+        .level-milestone {
+            position: relative;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .milestone-reward {
+            font-size: 0.9em;
+            color: var(--warning);
+            margin-top: 5px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            .wizard-avatar {
+                font-size: 4em;
+            }
+            
+            .nav-btn {
+                padding: 12px 5px;
+                font-size: 1.5em;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+            }
+            
+            #content {
+                padding: 20px 15px;
+            }
+        }
+        
+        /* Анимации для эффектов */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px var(--primary); }
+            50% { box-shadow: 0 0 40px var(--secondary); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Анимация появления элементов */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Специальные классы */
+        .hide {
+            display: none !important;
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            padding: 30px;
+            border-radius: 25px;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div id="bg-effects"></div>
+    
+    <!-- Уведомления -->
+    <div id="notification" class="notification">
+        <div id="notification-content"></div>
+    </div>
+    
+    <!-- Загрузка -->
+    <div id="loading">
+        <div class="loader">
+            <div class="crystal"></div>
+            <h2 style="margin-bottom: 10px; color: var(--secondary);">Fox Kombat</h2>
+            <p style="color: rgba(255,255,255,0.7);">Загрузка магии...</p>
+            <div style="width: 200px; height: 3px; background: rgba(255,255,255,0.1); margin: 20px auto; border-radius: 2px; overflow: hidden;">
+                <div id="progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основной интерфейс -->
+    <div id="main-ui" class="hide">
+        <nav class="top-bar">
+            <div class="player-info">
+                <div>
+                    <span id="player-name">Маг</span>
+                    <span id="level-badge" class="level-badge">Ур. 1</span>
+                </div>
+                <div id="mana-display" class="mana-display">
+                    <span class="mana-icon">✨</span>
+                    <span id="mana-count">100</span>
+                </div>
+            </div>
+            <div class="xp-bar">
+                <div id="xp-fill" class="xp-fill"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="loadPage('tower')" data-badge="0">
+                    🏰<span class="badge"></span>
+                </button>
+                <button class="nav-btn" onclick="loadPage('spells')" data-badge="1">
+                    📖<span class="badge">!</span>
+                </button>
+                <button class="nav-btn" onclick="loadPage('duel')" data-badge="3">
+                    ⚔️<span class="badge">3</span>
+                </button>
+                <button class="nav-btn" onclick="loadPage('guild')">
+                    👥<span class="badge"></span>
+                </button>
+            </div>
+        </nav>
+        
+        <div id="content">
+            <!-- Страницы загружаются сюда -->
+        </div>
+    </div>
+    
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-text"></p>
+            <div id="modal-buttons" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== КОНФИГУРАЦИЯ УРОВНЕЙ ==========
+        const CONFIG = {
+            BASE_MANA_PER_TAP: 10,
+            DAILY_COMBO_REWARD: 500,
+            DUEL_COST: 50,
+            DUEL_WIN_REWARD: 100,
+            LEVELS: [
+                { xp: 0, reward: "🎯 +5 к тапу" },
+                { xp: 1000, reward: "🔥 Огненный шар" },
+                { xp: 3000, reward: "🛡️ Магический щит" },
+                { xp: 7000, reward: "⚡ Молния" },
+                { xp: 15000, reward: "👑 Корона мага" }
+            ],
+            ACHIEVEMENTS: [
+                { id: 'first_tap', name: 'Первый шаг', desc: 'Совершить 10 тапов', icon: '👣', reward: 100 },
+                { id: 'mana_king', name: 'Король маны', desc: 'Собрать 5000 маны', icon: '👑', reward: 1000 },
+                { id: 'duel_master', name: 'Мастер дуэлей', desc: 'Выиграть 10 дуэлей', icon: '⚔️', reward: 500 },
+                { id: 'combo_pro', name: 'Комбо-профи', desc: 'Использовать все комбо', icon: '🎮', reward: 300 }
+            ]
+        };
+
+        // ========== ИГРОВЫЕ ДАННЫЕ ==========
+        let gameData = {
+            mana: 100,
+            level: 1,
+            xp: 0,
+            totalTaps: 0,
+            totalMana: 100,
+            spells: ['fireball'],
+            combosUsed: [],
+            achievements: [],
+            duelWins: 0,
+            duelLosses: 0,
+            lastComboDate: null,
+            lastDuelDate: null,
+            tapMultiplier: 1,
+            energy: 100,
+            lastUpdate: Date.now()
+        };
+
+        // ========== TELEGRAM WEB APP ==========
+        let tg = null;
+        let user = null;
+        
+        function initTelegram() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.expand();
+                tg.enableClosingConfirmation();
+                tg.BackButton.show();
+                tg.BackButton.onClick(handleBackButton);
+                
+                user = tg.initDataUnsafe.user;
+                
+                if (user) {
+                    document.getElementById('player-name').textContent = 
+                        user.first_name || 'Маг';
+                    if (user.username) {
+                        document.getElementById('player-name').textContent += 
+                            ` @${user.username}`;
+                    }
+                }
+                
+                // Настройка темы Telegram
+                tg.setHeaderColor('#8a2be2');
+                tg.setBackgroundColor('#0a0a1a');
+                
+                // Вибрация при тапе
+                if (tg.HapticFeedback) {
+                    window.hapticFeedback = tg.HapticFeedback;
+                }
+                
+                console.log('Telegram Web App инициализирован:', user);
+            } else {
+                console.log('Демо-режим');
+                user = { 
+                    id: Math.floor(Math.random() * 1000000), 
+                    first_name: "Тестовый Маг",
+                    username: "test_wizard"
+                };
+            }
+        }
+        
+        function handleBackButton() {
+            if (currentModal) {
+                hideModal();
+            } else if (currentPage !== 'tower') {
+                loadPage('tower');
+            }
+        }
+
+        // ========== СИСТЕМА УРОВНЕЙ ==========
+        function calculateLevel() {
+            for (let i = CONFIG.LEVELS.length - 1; i >= 0; i--) {
+                if (gameData.xp >= CONFIG.LEVELS[i].xp) {
+                    return i + 1;
+                }
+            }
+            return 1;
+        }
+        
+        function addXP(amount) {
+            const oldLevel = gameData.level;
+            gameData.xp += amount;
+            gameData.level = calculateLevel();
+            
+            updateXPBar();
+            document.getElementById('level-badge').textContent = `Ур. ${gameData.level}`;
+            
+            if (gameData.level > oldLevel) {
+                showNotification(`🎉 Уровень ${gameData.level}!`, 'success');
+                vibrate('medium');
+                
+                // Награда за уровень
+                const reward = CONFIG.LEVELS[gameData.level - 1]?.reward;
+                if (reward) {
+                    setTimeout(() => {
+                        showModal(
+                            'Новый уровень!',
+                            `Ты достиг уровня ${gameData.level}!<br>Награда: ${reward}`,
+                            [{ text: 'Круто!', action: hideModal }]
+                        );
+                    }, 500);
+                }
+            }
+        }
+        
+        function updateXPBar() {
+            const currentLevelXP = CONFIG.LEVELS[gameData.level - 1]?.xp || 0;
+            const nextLevelXP = CONFIG.LEVELS[gameData.level]?.xp || currentLevelXP * 2;
+            const xpInLevel = gameData.xp - currentLevelXP;
+            const xpNeeded = nextLevelXP - currentLevelXP;
+            const percent = (xpInLevel / xpNeeded) * 100;
+            
+            document.getElementById('xp-fill').style.width = Math.min(percent, 100) + '%';
+        }
+
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        let lastTapTime = 0;
+        let tapStreak = 0;
+        let comboTime = 0;
+        let currentPage = 'tower';
+        let currentModal = null;
+        
+        function tap() {
+            const now = Date.now();
+            const timeDiff = now - lastTapTime;
+            
+            // Проверка на спам
+            if (timeDiff < 50) return 0;
+            
+            // Стрик тапов
+            if (timeDiff < 1000) {
+                tapStreak++;
+                if (tapStreak % 10 === 0) {
+                    showNotification(`🔥 Стрик ${tapStreak}!`, 'warning');
+                }
+            } else {
+                tapStreak = 1;
+            }
+            
+            // Бонус за скорость
+            let bonus = 0;
+            if (timeDiff < 200) {
+                bonus = Math.floor(Math.random() * 5) + 1;
+            }
+            
+            // Крит тап
+            const isCritical = Math.random() < 0.05;
+            let manaGained = CONFIG.BASE_MANA_PER_TAP * gameData.tapMultiplier;
+            
+            if (isCritical) {
+                manaGained *= 2;
+                showFloatingText(`💥 КРИТ! +${manaGained}`, '#ff416c');
+                vibrate('heavy');
+            } else {
+                showFloatingText(`+${manaGained}${bonus > 0 ? `+${bonus}` : ''}`, '#00ff88');
+            }
+            
+            manaGained += bonus;
+            
+            // Обновление данных
+            gameData.mana += manaGained;
+            gameData.totalTaps++;
+            gameData.totalMana += manaGained;
+            lastTapTime = now;
+            
+            // Опыт за тап
+            addXP(1 + Math.floor(manaGained / 10));
+            
+            // Анимация маны
+            const manaDisplay = document.getElementById('mana-display');
+            manaDisplay.classList.add('active');
+            setTimeout(() => manaDisplay.classList.remove('active'), 200);
+            
+            // Проверка достижений
+            checkAchievements();
+            
+            // Сохранение
+            saveGame();
+            
+            // Обновление UI
+            updateManaDisplay();
+            updateStats();
+            
+            // Эффекты
+            createTapEffect(event);
+            
+            return manaGained;
+        }
+        
+        function useDailyCombo(combo) {
+            const today = new Date().toLocaleDateString();
+            
+            if (gameData.lastComboDate === today) {
+                showNotification('❌ Комбо уже использовано сегодня!', 'error');
+                return false;
+            }
+            
+            const normalizedCombo = combo.toUpperCase().trim();
+            
+            if (normalizedCombo === 'ALT+MANA' || normalizedCombo === 'ALTMANA') {
+                gameData.mana += CONFIG.DAILY_COMBO_REWARD;
+                gameData.lastComboDate = today;
+                gameData.combosUsed.push({
+                    combo: normalizedCombo,
+                    date: today,
+                    reward: CONFIG.DAILY_COMBO_REWARD
+                });
+                
+                addXP(100);
+                
+                // Эффекты
+                showNotification(`🎁 +${CONFIG.DAILY_COMBO_REWARD} маны!`, 'success');
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        showFloatingText('✨', '#ffd700');
+                    }, i * 100);
+                }
+                
+                vibrate('medium');
+                saveGame();
+                updateManaDisplay();
+                return true;
+            }
+            
+            showNotification('❌ Неверное комбо! Попробуй ALT+MANA', 'error');
+            return false;
+        }
+        
+        function startDuel() {
+            if (gameData.mana < CONFIG.DUEL_COST) {
+                showNotification(`❌ Нужно ${CONFIG.DUEL_COST} маны!`, 'error');
+                return;
+            }
+            
+            gameData.mana -= CONFIG.DUEL_COST;
+            
+            // Шанс победы зависит от уровня
+            const winChance = 0.4 + (gameData.level * 0.05);
+            const win = Math.random() < winChance;
+            
+            if (win) {
+                const reward = CONFIG.DUEL_WIN_REWARD * gameData.level;
+                gameData.mana += reward;
+                gameData.duelWins++;
+                
+                showModal(
+                    '🏆 Победа!',
+                    `Ты победил в дуэли!<br>Награда: <strong>+${reward} маны</strong>`,
+                    [
+                        { text: 'Круто!', action: hideModal },
+                        { text: 'Еще раз!', action: () => { hideModal(); startDuel(); } }
+                    ]
+                );
+                
+                addXP(50);
+            } else {
+                gameData.duelLosses++;
+                showModal(
+                    '💥 Поражение',
+                    'Ты проиграл дуэль...<br>Попробуй еще раз!',
+                    [
+                        { text: 'Продолжить', action: hideModal },
+                        { text: 'Отомстить!', action: () => { hideModal(); startDuel(); } }
+                    ]
+                );
+            }
+            
+            checkAchievements();
+            saveGame();
+            updateManaDisplay();
+            vibrate(win ? 'medium' : 'heavy');
+        }
+
+        // ========== UI СИСТЕМА ==========
+        function loadPage(page) {
+            currentPage = page;
+            
+            // Обновляем навигацию
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.nav-btn[onclick*="${page}"]`).classList.add('active');
+            
+            const content = document.getElementById('content');
+            content.className = 'fade-in';
+            
+            switch(page) {
+                case 'tower':
+                    content.innerHTML = getTowerPage();
+                    setupTowerEvents();
+                    break;
+                    
+                case 'spells':
+                    content.innerHTML = getSpellsPage();
+                    break;
+                    
+                case 'duel':
+                    content.innerHTML = getDuelPage();
+                    break;
+                    
+                case 'guild':
+                    content.innerHTML = getGuildPage();
+                    break;
+            }
+            
+            setTimeout(() => content.classList.remove('fade-in'), 500);
+        }
+        
+        function getTowerPage() {
+            return `
+                <div class="tower-page">
+                    <h2 class="page-title">🏰 Магическая Башня</h2>
+                    <p class="page-subtitle">Уровень: <strong class="text-glow">${gameData.level}</strong> | Опыт: <strong>${gameData.xp}</strong></p>
+                    
+                    <div class="tap-area" id="tap-area">
+                        <div class="wizard-avatar">
+                            🧙‍♂️
+                        </div>
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">Тапай по магу для сбора маны!</p>
+                        <div class="tap-stats">
+                            <div>
+                                <div style="color: var(--secondary); font-weight: bold;">+${CONFIG.BASE_MANA_PER_TAP * gameData.tapMultiplier}</div>
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.6);">за тап</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--accent); font-weight: bold;">${gameData.totalTaps}</div>
+                                <div style="font-size: 0.9em; color: rgba(255,255,255,0.6);">всего тапов</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📊 Статистика</h3>
+                        <ul>
+                            <li>Всего маны: <strong>${gameData.totalMana}</strong></li>
+                            <li>Множитель тапа: <strong>x${gameData.tapMultiplier}</strong></li>
+                            <li>Дуэлей выиграно: <strong>${gameData.duelWins}</strong></li>
+                            <li>Достижений: <strong>${gameData.achievements.length}/${CONFIG.ACHIEVEMENTS.length}</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🎮 Ежедневное комбо</h3>
+                        <input type="text" 
+                               id="combo-input" 
+                               class="combo-input"
+                               placeholder="Введи ALT+MANA"
+                               maxlength="20">
+                        <button class="btn" id="combo-btn">
+                            🎁 Использовать комбо
+                        </button>
+                        <p style="font-size: 0.9em; color: rgba(255,255,255,0.6); margin-top: 10px;">
+                            Дает +${CONFIG.DAILY_COMBO_REWARD} маны раз в день
+                            ${gameData.lastComboDate ? `<br><small>Использовано: ${gameData.lastComboDate}</small>` : ''}
+                        </p>
+                    </div>
+                    
+                    <div class="level-progress">
+                        ${CONFIG.LEVELS.slice(0, 5).map((level, i) => `
+                            <div class="level-milestone ${gameData.level > i ? 'unlocked' : ''}">
+                                <div>${i + 1}</div>
+                                <div class="milestone-reward">${level.reward}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getSpellsPage() {
+            const spells = [
+                { name: '🔥 Огненный шар', cost: 500, desc: 'Наносит 100 урона', unlocked: true },
+                { name: '❄️ Ледяная стрела', cost: 1500, desc: 'Замедляет врага', unlocked: gameData.level >= 2 },
+                { name: '⚡ Молния', cost: 3000, desc: 'Мгновенный удар', unlocked: gameData.level >= 3 },
+                { name: '🛡️ Магический щит', cost: 5000, desc: 'Защита от атак', unlocked: gameData.level >= 4 }
+            ];
+            
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">📖 Книга Заклинаний</h2>
+                    <p class="page-subtitle">Изучай новые заклинания</p>
+                    
+                    <div style="margin: 25px 0;">
+                        ${spells.map(spell => `
+                            <div class="card" style="text-align: left; margin-bottom: 15px; ${!spell.unlocked ? 'opacity: 0.6;' : ''}">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin: 0;">${spell.name}</h3>
+                                        <p style="color: rgba(255,255,255,0.7); margin: 5px 0; font-size: 0.9em;">${spell.desc}</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        ${spell.unlocked ? 
+                                            `<span style="color: var(--success);">✓ Изучено</span>` : 
+                                            `<div>
+                                                <div style="color: var(--warning);">${spell.cost} маны</div>
+                                                <button class="btn" onclick="buySpell('${spell.name}', ${spell.cost})" 
+                                                        style="padding: 8px 15px; margin-top: 5px;"
+                                                        ${gameData.mana < spell.cost ? 'disabled' : ''}>
+                                                    Изучить
+                                                </button>
+                                            </div>`
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        ← Назад в башню
+                    </button>
+                </div>
+            `;
+        }
+        
+        function getDuelPage() {
+            const winRate = gameData.duelWins + gameData.duelLosses > 0 ? 
+                Math.round((gameData.duelWins / (gameData.duelWins + gameData.duelLosses)) * 100) : 0;
+            
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">⚔️ Арена Дуэлей</h2>
+                    <p class="page-subtitle">Сражайся с другими магами</p>
+                    
+                    <div class="card">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
+                            <div>
+                                <div style="font-size: 2em; color: var(--success);">${gameData.duelWins}</div>
+                                <div style="font-size: 0.9em;">Побед</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; color: var(--danger);">${gameData.duelLosses}</div>
+                                <div style="font-size: 0.9em;">Поражений</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; color: var(--warning);">${winRate}%</div>
+                                <div style="font-size: 0.9em;">Винрейт</div>
+                            </div>
+                        </div>
+                        
+                        <p style="margin: 20px 0; color: rgba(255,255,255,0.8);">
+                            Шанс победы: <strong>${Math.round((0.4 + (gameData.level * 0.05)) * 100)}%</strong><br>
+                            Стоимость: ${CONFIG.DUEL_COST} маны<br>
+                            Награда: ${CONFIG.DUEL_WIN_REWARD * gameData.level} маны
+                        </p>
+                    </div>
+                    
+                    <button class="btn" onclick="startDuel()" style="margin-bottom: 15px;">
+                        ⚔️ Начать дуэль (${CONFIG.DUEL_COST} маны)
+                    </button>
+                    <br>
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        ← Вернуться в башню
+                    </button>
+                </div>
+            `;
+        }
+        
+        function getGuildPage() {
+            return `
+                <div style="text-align: center;">
+                    <h2 class="page-title">👥 Гильдия Магов</h2>
+                    <p class="page-subtitle">Объединяйся с другими игроками</p>
+                    
+                    <div class="card">
+                        <div style="font-size: 4em; margin: 20px 0;">🏰</div>
+                        <h3>Ты еще не в гильдии</h3>
+                        <p style="margin: 15px 0; color: rgba(255,255,255,0.8);">
+                            Присоединяйся к гильдии, чтобы получать бонусы,<br>
+                            участвовать в рейдах и соревноваться с другими!
+                        </p>
+                        
+                        <div style="margin: 25px 0;">
+                            <button class="btn" onclick="showModal('Скоро!', 'Система гильдий в разработке!', [{text: 'Понял', action: hideModal}])" style="margin-bottom: 10px;">
+                                Создать гильдию (10000 маны)
+                            </button>
+                            <br>
+                            <button class="btn-secondary" onclick="showModal('Поиск', 'Ищем активные гильдии для тебя...', [{text: 'OK', action: hideModal}])">
+                                Найти гильдию
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3>🏆 Топ гильдий</h3>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin: 15px 0;">
+                            <p style="color: rgba(255,255,255,0.6);">Загрузка рейтинга...</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-secondary" onclick="loadPage('tower')">
+                        ← Назад в башню
+                    </button>
+                </div>
+            `;
+        }
+        
+        function setupTowerEvents() {
+            // Тап по магу
+            const tapArea = document.getElementById('tap-area');
+            if (tapArea) {
+                tapArea.onclick = function(e) {
+                    tap();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => this.style.transform = 'scale(1)', 100);
+                };
+                
+                tapArea.ontouchstart = function(e) {
+                    e.preventDefault();
+                    tap();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => this.style.transform = 'scale(1)', 100);
+                };
+            }
+            
+            // Кнопка комбо
+            const comboBtn = document.getElementById('combo-btn');
+            const comboInput = document.getElementById('combo-input');
+            
+            if (comboBtn && comboInput) {
+                comboBtn.onclick = function() {
+                    if (comboInput.value.trim()) {
+                        useDailyCombo(comboInput.value);
+                        comboInput.value = '';
+                    } else {
+                        showNotification('Введите комбо!', 'error');
+                    }
+                };
+                
+                comboInput.onkeypress = function(e) {
+                    if (e.key === 'Enter') {
+                        comboBtn.click();
+                    }
+                };
+            }
+        }
+
+        // ========== ЭФФЕКТЫ И АНИМАЦИИ ==========
+        function createTapEffect(event) {
+            const x = event ? event.clientX : window.innerWidth / 2;
+            const y = event ? event.clientY : window.innerHeight / 2;
+            
+            // Создаем круги волн
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const wave = document.createElement('div');
+                    wave.style.cssText = `
+                        position: fixed;
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: 20px;
+                        height: 20px;
+                        border: 2px solid var(--primary);
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 999;
+                        transform: translate(-50%, -50%);
+                        animation: waveExpand 0.5s ease-out forwards;
+                    `;
+                    
+                    document.body.appendChild(wave);
+                    setTimeout(() => wave.remove(), 500);
+                }, i * 100);
+            }
+            
+            // Добавляем CSS для анимации волны
+            if (!document.getElementById('wave-style')) {
+                const style = document.createElement('style');
+                style.id = 'wave-style';
+                style.textContent = `
+                    @keyframes waveExpand {
+                        0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                        100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function showFloatingText(text, color = '#00ff88') {
+            const floatText = document.createElement('div');
+            floatText.className = 'floating-text';
+            floatText.textContent = text;
+            floatText.style.color = color;
+            floatText.style.left = (Math.random() * 70 + 15) + '%';
+            
+            document.body.appendChild(floatText);
+            setTimeout(() => floatText.remove(), 1000);
+        }
+        
+        function createBackgroundEffects() {
+            const container = document.getElementById('bg-effects');
+            if (!container) return;
+            
+            // Очищаем старые эффекты
+            container.innerHTML = '';
+            
+            // Создаем частицы
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    width: ${Math.random() * 10 + 2}px;
+                    height: ${Math.random() * 10 + 2}px;
+                    background: ${i % 3 === 0 ? 'var(--primary)' : i % 3 === 1 ? 'var(--secondary)' : 'var(--accent)'};
+                    left: ${Math.random() * 100}%;
+                    animation-duration: ${Math.random() * 30 + 20}s;
+                    animation-delay: ${Math.random() * 5}s;
+                    opacity: ${Math.random() * 0.3 + 0.1};
+                `;
+                container.appendChild(particle);
+            }
+            
+            // Звезды
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.style.cssText = `
+                    position: absolute;
+                    width: ${Math.random() * 2 + 1}px;
+                    height: ${Math.random() * 2 + 1}px;
+                    background: white;
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    opacity: ${Math.random() * 0.5 + 0.1};
+                    animation: twinkle ${Math.random() * 3 + 2}s infinite alternate;
+                `;
+                container.appendChild(star);
+            }
+            
+            // Добавляем анимацию мерцания
+            if (!document.getElementById('star-style')) {
+                const style = document.createElement('style');
+                style.id = 'star-style';
+                style.textContent = `
+                    @keyframes twinkle {
+                        0% { opacity: 0.1; }
+                        100% { opacity: 0.8; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function vibrate(type = 'light') {
+            if (window.hapticFeedback) {
+                try {
+                    const types = {
+                        light: 'light',
+                        medium: 'medium',
+                        heavy: 'heavy',
+                        success: 'success',
+                        error: 'error',
+                        warning: 'warning'
+                    };
+                    window.hapticFeedback.impactOccurred(types[type] || 'light');
+                } catch (e) {
+                    console.log('Ошибка вибрации:', e);
+                }
+            }
+        }
+
+        // ========== СИСТЕМА УВЕДОМЛЕНИЙ ==========
+        function showNotification(text, type = 'info') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notification-content');
+            
+            const colors = {
+                success: '#00ff88',
+                error: '#ff416c',
+                warning: '#ffd700',
+                info: '#00bfff'
+            };
+            
+            content.innerHTML = text;
+            notification.style.background = `linear-gradient(135deg, ${colors[type]}, ${colors[type]}80)`;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showModal(title, text, buttons = []) {
+            currentModal = { title, text, buttons };
+            
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-text').innerHTML = text;
+            
+            const buttonsContainer = document.getElementById('modal-buttons');
+            buttonsContainer.innerHTML = '';
+            
+            buttons.forEach((btn, i) => {
+                const button = document.createElement('button');
+                button.className = i === 0 ? 'btn' : 'btn-secondary';
+                button.textContent = btn.text;
+                button.onclick = btn.action;
+                button.style.margin = '5px';
+                buttonsContainer.appendChild(button);
+            });
+            
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function hideModal() {
+            document.getElementById('modal').classList.remove('active');
+            currentModal = null;
+        }
+
+        // ========== ДОСТИЖЕНИЯ ==========
+        function checkAchievements() {
+            CONFIG.ACHIEVEMENTS.forEach(ach => {
+                if (gameData.achievements.includes(ach.id)) return;
+                
+                let completed = false;
+                
+                switch(ach.id) {
+                    case 'first_tap':
+                        completed = gameData.totalTaps >= 10;
+                        break;
+                    case 'mana_king':
+                        completed = gameData.totalMana >= 5000;
+                        break;
+                    case 'duel_master':
+                        completed = gameData.duelWins >= 10;
+                        break;
+                    case 'combo_pro':
+                        completed = gameData.combosUsed.length >= 3;
+                        break;
+                }
+                
+                if (completed) {
+                    gameData.achievements.push(ach.id);
+                    gameData.mana += ach.reward;
+                    
+                    showModal(
+                        '🏆 Новое достижение!',
+                        `<div style="text-align: center; margin: 20px 0;">
+                            <div style="font-size: 3em;">${ach.icon}</div>
+                            <h3>${ach.name}</h3>
+                            <p>${ach.desc}</p>
+                            <p style="color: var(--success); margin-top: 10px;">+${ach.reward} маны!</p>
+                        </div>`,
+                        [{ text: 'Круто!', action: hideModal }]
+                    );
+                    
+                    saveGame();
+                    updateManaDisplay();
+                }
+            });
+        }
+
+        // ========== СИСТЕМА СОХРАНЕНИЯ ==========
+        function saveGame() {
+            try {
+                const userId = user ? user.id : 'demo';
+                gameData.lastUpdate = Date.now();
+                localStorage.setItem(`fox_kombat_${userId}`, JSON.stringify(gameData));
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+            }
+        }
+        
+        function loadGame() {
+            try {
+                const userId = user ? user.id : 'demo';
+                const saved = localStorage.getItem(`fox_kombat_${userId}`);
+                
+                if (saved) {
+                    const loadedData = JSON.parse(saved);
+                    
+                    // Проверяем дату последнего комбо
+                    const today = new Date().toLocaleDateString();
+                    if (loadedData.lastComboDate !== today) {
+                        loadedData.lastComboDate = null;
+                    }
+                    
+                    // Объединяем данные
+                    gameData = {
+                        ...gameData,
+                        ...loadedData,
+                        lastUpdate: Date.now()
+                    };
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+            }
+            
+            updateManaDisplay();
+            updateStats();
+            updateXPBar();
+        }
+        
+        function updateManaDisplay() {
+            const manaElement = document.getElementById('mana-count');
+            if (manaElement) {
+                const oldMana = parseInt(manaElement.textContent) || 0;
+                const newMana = gameData.mana;
+                
+                // Анимация изменения числа
+                if (oldMana !== newMana) {
+                    animateCounter(manaElement, oldMana, newMana);
+                } else {
+                    manaElement.textContent = newMana;
+                }
+            }
+        }
+        
+        function animateCounter(element, start, end) {
+            const duration = 500;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Эффект easeOut
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (end - start) * eased);
+                
+                element.textContent = current.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = end.toLocaleString();
+                }
+            }
+            
+            update();
+        }
+        
+        function updateStats() {
+            document.getElementById('level-badge').textContent = `Ур. ${gameData.level}`;
+        }
+
+        // ========== ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function buySpell(name, cost) {
+            if (gameData.mana >= cost) {
+                gameData.mana -= cost;
+                gameData.spells.push(name.toLowerCase().split(' ')[1]);
+                
+                showNotification(`✅ Изучено: ${name}`, 'success');
+                saveGame();
+                updateManaDisplay();
+                loadPage('spells');
+            } else {
+                showNotification(`❌ Нужно еще ${cost - gameData.mana} маны`, 'error');
+            }
+        }
+        
+        function shareGame() {
+            const shareText = `Я уже на ${gameData.level} уровне в Fox Kombat! Присоединяйся: ${window.location.href}`;
+            
+            if (tg && tg.share) {
+                tg.share(shareText);
+            } else if (navigator.share) {
+                navigator.share({
+                    title: 'Fox Kombat',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText);
+                showNotification('📋 Ссылка скопирована!', 'success');
+            }
+        }
+        
+        function resetGame() {
+            if (confirm('Точно сбросить весь прогресс? Это действие нельзя отменить!')) {
+                const userId = user ? user.id : 'demo';
+                localStorage.removeItem(`fox_kombat_${userId}`);
+                location.reload();
+            }
+        }
+
+        // ========== ЗАПУСК ИГРЫ ==========
+        async function startGame() {
+            console.log('🚀 Запуск Fox Kombat...');
+            
+            // Инициализация прогресс-бара
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                document.getElementById('progress-bar').style.width = progress + '%';
+                if (progress >= 100) clearInterval(progressInterval);
+            }, 100);
+            
+            // Инициализация Telegram
+            await initTelegram();
+            
+            // Создаем фоновые эффекты
+            createBackgroundEffects();
+            
+            // Загружаем сохранение
+            await loadGame();
+            
+            // Загружаем игру
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hide');
+                document.getElementById('main-ui').classList.remove('hide');
+                
+                setTimeout(() => {
+                    document.getElementById('main-ui').classList.add('show');
+                    loadPage('tower');
+                    
+                    // Приветственное сообщение
+                    setTimeout(() => {
+                        showModal(
+                            'Добро пожаловать в Fox Kombat! 🦊',
+                            `Собери магию, изучай заклинания<br>и стань величайшим магом!<br><br>
+                            <small>Тапай по магу для сбора маны<br>Используй комбо ALT+MANA раз в день</small>`,
+                            [{ text: 'Начать магию!', action: hideModal }]
+                        );
+                    }, 500);
+                }, 300);
+                
+                console.log('✅ Игра запущена!');
+            }, 1500);
+            
+            // Автосохранение каждые 30 секунд
+            setInterval(saveGame, 30000);
+            
+            // Обновление энергии
+            setInterval(() => {
+                if (gameData.energy < 100) {
+                    gameData.energy = Math.min(100, gameData.energy + 1);
+                }
+            }, 60000);
+        }
+
+        // ========== ГЛОБАЛЬНЫЕ ФУНКЦИИ ==========
+        window.loadPage = loadPage;
+        window.startDuel = startDuel;
+        window.buySpell = buySpell;
+        window.shareGame = shareGame;
+        window.resetGame = resetGame;
+        window.showModal = showModal;
+        window.hideModal = hideModal;
+
+        // ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
+        document.addEventListener('DOMContentLoaded', startGame);
+        
+        // Предотвращаем стандартное поведение касания
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>
