@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamster Kombat - Персонажи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            background: #0a0a2a;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        /* ТОЧНО КАК В HAMSTER KOMBAT */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(20, 20, 40, 0.9);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #3a3a5a;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 3px solid #ffd166;
+        }
+        
+        .level {
+            font-size: 14px;
+            color: #ffd166;
+            font-weight: bold;
+        }
+        
+        .coins {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd166;
+        }
+        
+        /* ГРИД ПЕРСОНАЖЕЙ */
+        .characters-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd166;
+            text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+        }
+        
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        /* КАРТОЧКА ПЕРСОНАЖА ТОЧНО КАК В ИГРЕ */
+        .character-card {
+            background: linear-gradient(135deg, #1a1a3a, #2a2a4a);
+            border-radius: 20px;
+            padding: 20px;
+            border: 3px solid #3a3a5a;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .character-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffd166;
+            box-shadow: 0 10px 30px rgba(255, 209, 102, 0.2);
+        }
+        
+        .character-card.active {
+            border-color: #ff6b35;
+            background: linear-gradient(135deg, #2a1a35, #3a2a45);
+        }
+        
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .character-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .character-level {
+            background: #ff6b35;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* ИЗОБРАЖЕНИЕ ПЕРСОНАЖА В СТИЛЕ HAMSTER KOMBAT */
+        .character-image {
+            width: 100%;
+            height: 160px;
+            margin: 15px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        /* БАЗОВЫЙ ХОМЯК (ПЕРВЫЙ) */
+        .hamster-basic {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .hamster-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #D4A574;
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+        }
+        
+        .hamster-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #D4A574;
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+        }
+        
+        .hamster-ears {
+            position: absolute;
+            top: 0;
+            left: 25px;
+            width: 70px;
+            height: 25px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .ear {
+            width: 20px;
+            height: 25px;
+            background: #D4A574;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .hamster-eyes {
+            position: absolute;
+            top: 25px;
+            left: 15px;
+            width: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .eye {
+            width: 8px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+        }
+        
+        .hamster-nose {
+            position: absolute;
+            width: 6px;
+            height: 4px;
+            background: #333;
+            border-radius: 50%;
+            top: 35px;
+            left: 22px;
+        }
+        
+        /* ХОМЯК С КИБЕР-УСИЛЕНИЯМИ */
+        .hamster-cyber {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .cyber-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #4A90E2;
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+            border: 3px solid #00D4FF;
+        }
+        
+        .cyber-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #4A90E2;
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+            border: 3px solid #00D4FF;
+        }
+        
+        .cyber-implants {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            width: 100px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .implant {
+            width: 12px;
+            height: 25px;
+            background: linear-gradient(180deg, #00D4FF, #0088CC);
+            border-radius: 6px;
+        }
+        
+        .cyber-visor {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: #00D4FF;
+            border-radius: 10px;
+            top: 20px;
+            left: 20px;
+            opacity: 0.7;
+        }
+        
+        /* ХОМЯК-ТРЕЙДЕР */
+        .hamster-trader {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .trader-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #FFD700;
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+        }
+        
+        .trader-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #FFD700;
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+        }
+        
+        .money-bag {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 10px;
+            top: 50px;
+            right: 10px;
+        }
+        
+        .dollar-sign {
+            position: absolute;
+            top: 55px;
+            right: 20px;
+            font-size: 20px;
+            color: #00AA00;
+            font-weight: bold;
+        }
+        
+        .chart {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid #00D4FF;
+            border-radius: 5px;
+            bottom: 10px;
+            left: 10px;
+        }
+        
+        /* ХОМЯК-ВОИН */
+        .hamster-warrior {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .warrior-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #FF6B35;
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+        }
+        
+        .warrior-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #FF6B35;
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+        }
+        
+        .sword {
+            position: absolute;
+            width: 40px;
+            height: 5px;
+            background: #999;
+            transform: rotate(45deg);
+            top: 50px;
+            right: 15px;
+        }
+        
+        .sword-hilt {
+            position: absolute;
+            width: 15px;
+            height: 5px;
+            background: #FFD700;
+            top: 50px;
+            right: 35px;
+        }
+        
+        .shield {
+            position: absolute;
+            width: 25px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 5px;
+            top: 40px;
+            left: 10px;
+        }
+        
+        /* ХОМЯК-МАЙНЕР */
+        .hamster-miner {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .miner-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #39FF14;
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+        }
+        
+        .miner-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #39FF14;
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+        }
+        
+        .mining-helmet {
+            position: absolute;
+            width: 60px;
+            height: 25px;
+            background: #FFD700;
+            border-radius: 15px 15px 5px 5px;
+            top: 5px;
+            left: 30px;
+        }
+        
+        .light {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            top: 8px;
+            left: 40px;
+            box-shadow: 0 0 10px #FFFFFF;
+            animation: light-blink 1s infinite;
+        }
+        
+        @keyframes light-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pickaxe {
+            position: absolute;
+            width: 50px;
+            height: 5px;
+            background: #666;
+            transform: rotate(-30deg);
+            top: 60px;
+            right: 10px;
+        }
+        
+        /* ХОМЯК-ЛЕГЕНДА */
+        .hamster-legend {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .legend-body {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35);
+            border-radius: 40px 40px 30px 30px;
+            top: 30px;
+            left: 20px;
+        }
+        
+        .legend-head {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35);
+            border-radius: 50%;
+            top: 10px;
+            left: 35px;
+        }
+        
+        .crown {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: #FF4500;
+            border-radius: 10px 10px 0 0;
+            top: 0;
+            left: 40px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .crown-spike {
+            width: 8px;
+            height: 10px;
+            background: #FFD700;
+            border-radius: 2px;
+        }
+        
+        .aura {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border: 3px solid #FFD700;
+            border-radius: 50%;
+            top: -10px;
+            left: -10px;
+            animation: aura-pulse 2s infinite;
+        }
+        
+        @keyframes aura-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* СТАТИСТИКИ */
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .stat-name {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffd166;
+        }
+        
+        /* КНОПКИ */
+        .select-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .select-button:hover {
+            background: linear-gradient(135deg, #ff8c42, #ff6b35);
+            transform: scale(1.02);
+        }
+        
+        .select-button.selected {
+            background: linear-gradient(135deg, #00cc88, #00aa66);
+        }
+        
+        .select-button.locked {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        /* БЕЙДЖИ */
+        .rarity-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .common { background: #666; color: white; }
+        .rare { background: #4A90E2; color: white; }
+        .epic { background: #8A2BE2; color: white; }
+        .legendary { background: #FFD700; color: #333; }
+        
+        /* ТЕКУЩИЙ ПЕРСОНАЖ */
+        .current-character {
+            background: rgba(20, 20, 40, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 3px solid #ff6b35;
+            text-align: center;
+        }
+        
+        .current-character h3 {
+            color: #ffd166;
+            margin-bottom: 15px;
+        }
+        
+        .current-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .current-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd166;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ШАПКА -->
+        <div class="header">
+            <div class="player-info">
+                <div class="avatar">🐹</div>
+                <div class="level">Level 20</div>
+            </div>
+            <div class="coins">
+                <span>⭐</span>
+                <span>1,159</span>
+            </div>
+        </div>
+        
+        <h1 class="characters-title">CHOOSE YOUR HAMSTER</h1>
+        
+        <!-- ПЕРСОНАЖИ -->
+        <div class="characters-grid">
+            <!-- БАЗОВЫЙ ХОМЯК -->
+            <div class="character-card active" id="basic">
+                <div class="rarity-badge common">Common</div>
+                
+                <div class="character-header">
+                    <div class="character-name">BASIC HAMSTER</div>
+                    <div class="character-level">Lv. 1</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-basic">
+                        <div class="hamster-body"></div>
+                        <div class="hamster-head"></div>
+                        <div class="hamster-ears">
+                            <div class="ear"></div>
+                            <div class="ear"></div>
+                        </div>
+                        <div class="hamster-eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="hamster-nose"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Attack</span>
+                        <span class="stat-value">50</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Defense</span>
+                        <span class="stat-value">50</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">50</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Luck</span>
+                        <span class="stat-value">50</span>
+                    </div>
+                </div>
+                
+                <button class="select-button selected" onclick="selectCharacter('basic')">
+                    SELECTED
+                </button>
+            </div>
+            
+            <!-- КИБЕР-ХОМЯК -->
+            <div class="character-card" id="cyber">
+                <div class="rarity-badge rare">Rare</div>
+                
+                <div class="character-header">
+                    <div class="character-name">CYBER HAMSTER</div>
+                    <div class="character-level">Lv. 15</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-cyber">
+                        <div class="cyber-body"></div>
+                        <div class="cyber-head"></div>
+                        <div class="hamster-ears">
+                            <div class="ear"></div>
+                            <div class="ear"></div>
+                        </div>
+                        <div class="cyber-visor"></div>
+                        <div class="cyber-implants">
+                            <div class="implant"></div>
+                            <div class="implant"></div>
+                            <div class="implant"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Attack</span>
+                        <span class="stat-value">75</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Defense</span>
+                        <span class="stat-value">85</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Speed</span>
+                        <span class="stat-value">65</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Tech</span>
+                        <span class="stat-value">90</span>
+                    </div>
+                </div>
+                
+                <button class="select-button" onclick="selectCharacter('cyber')">
+                    UNLOCK: 500⭐
+                </button>
+            </div>
+            
+            <!-- ТРЕЙДЕР -->
+            <div class="character-card" id="trader">
+                <div class="rarity-badge epic">Epic</div>
+                
+                <div class="character-header">
+                    <div class="character-name">TRADER HAMSTER</div>
+                    <div class="character-level">Lv. 20</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-trader">
+                        <div class="trader-body"></div>
+                        <div class="trader-head"></div>
+                        <div class="hamster-ears">
+                            <div class="ear"></div>
+                            <div class="ear"></div>
+                        </div>
+                        <div class="hamster-eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="money-bag"></div>
+                        <div class="dollar-sign">$</div>
+                        <div class="chart"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Profit</span>
+                        <span class="stat-value">+50%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Deals</span>
+                        <span class="stat-value">3/day</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Luck</span>
+                        <span class="stat-value">85</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Gold</span>
+                        <span class="stat-value">+25%</span>
+                    </div>
+                </div>
+                
+                <button class="select-button" onclick="selectCharacter('trader')">
+                    UNLOCK: 1000⭐
+                </button>
+            </div>
+            
+            <!-- ВОИН -->
+            <div class="character-card" id="warrior">
+                <div class="rarity-badge epic">Epic</div>
+                
+                <div class="character-header">
+                    <div class="character-name">WARRIOR HAMSTER</div>
+                    <div class="character-level">Lv. 25</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-warrior">
+                        <div class="warrior-body"></div>
+                        <div class="warrior-head"></div>
+                        <div class="hamster-ears">
+                            <div class="ear"></div>
+                            <div class="ear"></div>
+                        </div>
+                        <div class="hamster-eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="sword"></div>
+                        <div class="sword-hilt"></div>
+                        <div class="shield"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Attack</span>
+                        <span class="stat-value">95</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Defense</span>
+                        <span class="stat-value">80</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">HP</span>
+                        <span class="stat-value">150</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Crit</span>
+                        <span class="stat-value">25%</span>
+                    </div>
+                </div>
+                
+                <button class="select-button" onclick="selectCharacter('warrior')">
+                    UNLOCK: 1500⭐
+                </button>
+            </div>
+            
+            <!-- МАЙНЕР -->
+            <div class="character-card" id="miner">
+                <div class="rarity-badge rare">Rare</div>
+                
+                <div class="character-header">
+                    <div class="character-name">MINER HAMSTER</div>
+                    <div class="character-level">Lv. 18</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-miner">
+                        <div class="miner-body"></div>
+                        <div class="miner-head"></div>
+                        <div class="mining-helmet"></div>
+                        <div class="light"></div>
+                        <div class="pickaxe"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">Mining</span>
+                        <span class="stat-value">+100%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Energy</span>
+                        <span class="stat-value">120</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Gems</span>
+                        <span class="stat-value">+2/day</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Stamina</span>
+                        <span class="stat-value">90</span>
+                    </div>
+                </div>
+                
+                <button class="select-button" onclick="selectCharacter('miner')">
+                    UNLOCK: 800⭐
+                </button>
+            </div>
+            
+            <!-- ЛЕГЕНДА -->
+            <div class="character-card" id="legend">
+                <div class="rarity-badge legendary">Legendary</div>
+                
+                <div class="character-header">
+                    <div class="character-name">GOLDEN HAMSTER</div>
+                    <div class="character-level">Lv. 30</div>
+                </div>
+                
+                <div class="character-image">
+                    <div class="hamster-legend">
+                        <div class="legend-body"></div>
+                        <div class="legend-head"></div>
+                        <div class="crown">
+                            <div class="crown-spike"></div>
+                            <div class="crown-spike"></div>
+                            <div class="crown-spike"></div>
+                        </div>
+                        <div class="aura"></div>
+                    </div>
+                </div>
+                
+                <div class="character-stats">
+                    <div class="stat">
+                        <span class="stat-name">All Stats</span>
+                        <span class="stat-value">+50%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">XP Bonus</span>
+                        <span class="stat-value">+100%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Gold</span>
+                        <span class="stat-value">+75%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Aura</span>
+                        <span class="stat-value">Legend</span>
+                    </div>
+                </div>
+                
+                <button class="select-button locked" onclick="showRequirement()">
+                    REQUIRE: Level 30
+                </button>
+            </div>
+        </div>
+        
+        <!-- ТЕКУЩИЙ ПЕРСОНАЖ -->
+        <div class="current-character">
+            <h3>CURRENT CHARACTER: <span id="currentName">BASIC HAMSTER</span></h3>
+            <div class="current-stats">
+                <div class="current-stat">
+                    <div class="stat-label">Power</div>
+                    <div class="stat-number">1,159</div>
+                </div>
+                <div class="current-stat">
+                    <div class="stat-label">Daily Profit</div>
+                    <div class="stat-number">+12.5%</div>
+                </div>
+                <div class="current-stat">
+                    <div class="stat-label">Win Rate</div>
+                    <div class="stat-number">68%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCharacter = 'basic';
+        let coins = 1159;
+        
+        function selectCharacter(characterId) {
+            const card = document.getElementById(characterId);
+            const button = card.querySelector('.select-button');
+            
+            // Проверяем, не заблокирована ли кнопка
+            if (button.classList.contains('locked')) {
+                alert('This character is locked! Reach Level 30 to unlock.');
+                return;
+            }
+            
+            // Если есть цена, проверяем баланс
+            if (button.textContent.includes('UNLOCK:')) {
+                const cost = parseInt(button.textContent.match(/\d+/)[0]);
+                if (coins < cost) {
+                    alert(`Not enough stars! Need ${cost}, you have ${coins}`);
+                    return;
+                }
+                
+                // Списываем звезды
+                coins -= cost;
+                document.querySelector('.coins span:nth-child(2)').textContent = coins.toLocaleString();
+                
+                // Меняем кнопку
+                button.textContent = 'SELECT';
+                button.classList.remove('locked');
+                
+                alert(`Character unlocked for ${cost} stars!`);
+            }
+            
+            // Убираем выделение со всех
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.select-button').forEach(btn => {
+                if (!btn.classList.contains('locked')) {
+                    btn.textContent = btn.textContent.includes('UNLOCK:') ? btn.textContent : 'SELECT';
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            // Выделяем выбранного
+            card.classList.add('active');
+            button.textContent = 'SELECTED';
+            button.classList.add('selected');
+            currentCharacter = characterId;
+            
+            // Обновляем имя текущего персонажа
+            const characterNames = {
+                'basic': 'BASIC HAMSTER',
+                'cyber': 'CYBER HAMSTER',
+                'trader': 'TRADER HAMSTER',
+                'warrior': 'WARRIOR HAMSTER',
+                'miner': 'MINER HAMSTER',
+                'legend': 'GOLDEN HAMSTER'
+            };
+            
+            document.getElementById('currentName').textContent = characterNames[characterId];
+            
+            // Обновляем статистику в зависимости от персонажа
+            updateStats(characterId);
+        }
+        
+        function updateStats(characterId) {
+            const stats = {
+                'basic': { power: 1159, profit: '+12.5%', winRate: '68%' },
+                'cyber': { power: 1850, profit: '+18%', winRate: '72%' },
+                'trader': { power: 2200, profit: '+35%', winRate: '65%' },
+                'warrior': { power: 2500, profit: '+15%', winRate: '85%' },
+                'miner': { power: 1700, profit: '+25%', winRate: '60%' },
+                'legend': { power: 3500, profit: '+50%', winRate: '90%' }
+            };
+            
+            const stat = stats[characterId] || stats.basic;
+            
+            document.querySelectorAll('.stat-number')[0].textContent = stat.power.toLocaleString();
+            document.querySelectorAll('.stat-number')[1].textContent = stat.profit;
+            document.querySelectorAll('.stat-number')[2].textContent = stat.winRate;
+        }
+        
+        function showRequirement() {
+            alert('Golden Hamster requires:\n• Level 30\n• Complete all story missions\n• Defeat final boss');
+        }
+        
+        // Автоматическое переключение подсветки
+        let currentIndex = 0;
+        const cards = document.querySelectorAll('.character-card:not(#legend)');
+        
+        setInterval(() => {
+            cards[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % cards.length;
+            cards[currentIndex].classList.add('active');
+        }, 3000);
+        
+        // Инициализация
+        updateStats('basic');
+    </script>
+</body>
+</html>
