@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fox Kombat | Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* ВСТАВЬТЕ СЮДА ВЕСЬ ВАШ CSS КОД, КОТОРЫЙ ВЫ ОТПРАВИЛИ */
+        :root {
+            --primary: #8a2be2;
+            --secondary: #00bfff;
+            --accent: #ff416c;
+            --dark: #1a1a2e;
+            --darker: #0f0f1e;
+            --light: #ffffff;
+            --success: #00ff88;
+            --warning: #ffd700;
+            --danger: #ff416c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* ... ВСТАВЬТЕ ОСТАЛЬНОЙ CSS КОД ЗДЕСЬ ... */
+        
+        /* ЗАКАНЧИВАЙТЕ CSS ЗДЕСЬ */
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Загрузка -->
+        <div id="loading">
+            <div class="loader">
+                <div class="crystal"></div>
+                <p>Загрузка магии...</p>
+            </div>
+        </div>
+        
+        <!-- Основной интерфейс -->
+        <div id="main-ui" class="hide">
+            <nav class="top-bar">
+                <div class="player-info">
+                    <span id="player-name">Маг</span>
+                    <div class="mana-display">
+                        <span class="mana-icon">✨</span>
+                        <span id="mana-count">100</span>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn active" onclick="loadPage('tower')">🏰</button>
+                    <button class="nav-btn" onclick="loadPage('spells')">📖</button>
+                    <button class="nav-btn" onclick="loadPage('duel')">⚔️</button>
+                    <button class="nav-btn" onclick="loadPage('guild')">👥</button>
+                </div>
+            </nav>
+            
+            <div id="content">
+                <!-- Страницы загружаются сюда -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== КОНФИГУРАЦИЯ ==========
+        const CONFIG = {
+            BASE_MANA_PER_TAP: 10,
+            DAILY_COMBO_REWARD: 500
+        };
+        
+        // ========== ИГРОВЫЕ ДАННЫЕ ==========
+        let gameData = {
+            mana: 100,
+            level: 1,
+            spells: ['fireball'],
+            lastTap: 0
+        };
+        
+        // ========== TELEGRAM ==========
+        let tg = null;
+        let user = null;
+        
+        function initTelegram() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.expand();
+                user = tg.initDataUnsafe.user;
+                
+                if (user && user.first_name) {
+                    document.getElementById('player-name').textContent = user.first_name;
+                }
+                
+                console.log('Telegram пользователь:', user);
+            } else {
+                console.log('Демо-режим (не в Telegram)');
+                user = { id: 123456, first_name: "Тестовый", username: "test" };
+            }
+        }
+        
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        function tap() {
+            const now = Date.now();
+            if (now - gameData.lastTap < 100) return 0;
+            
+            gameData.mana += CONFIG.BASE_MANA_PER_TAP;
+            gameData.lastTap = now;
+            
+            // Анимация
+            showFloatingText(`+${CONFIG.BASE_MANA_PER_TAP}`);
+            
+            // Сохранение
+            saveGame();
+            
+            // Обновление UI
+            updateManaDisplay();
+            
+            return CONFIG.BASE_MANA_PER_TAP;
+        }
+        
+        function useDailyCombo(combo) {
+            if (combo.toUpperCase().includes('ALT+MANA')) {
+                gameData.mana += CONFIG.DAILY_COMBO_REWARD;
+                saveGame();
+                updateManaDisplay();
+                showAlert(`🎉 +${CONFIG.DAILY_COMBO_REWARD} маны!`);
+                return true;
+            }
+            showAlert("Неверное комбо! Попробуй ALT+MANA");
+            return false;
+        }
+        
+        // ========== UI ФУНКЦИИ ==========
+        function loadPage(page) {
+            console.log('Загружаем страницу:', page);
+            
+            // Обновляем активные кнопки
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Добавляем active на нужную кнопку
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.textContent.includes(getButtonEmoji(page))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const content = document.getElementById('content');
+            
+            switch(page) {
+                case 'tower':
+                    content.innerHTML = getTowerPage();
+                    setupTowerEvents();
+                    break;
+                    
+                case 'spells':
+                    content.innerHTML = getSpellsPage();
+                    break;
+                    
+                case 'duel':
+                    content.innerHTML = getDuelPage();
+                    break;
+                    
+                case 'guild':
+                    content.innerHTML = getGuildPage();
+                    break;
+            }
+        }
+        
+        function getTowerPage() {
+            return `
+                <div class="tower-page">
+                    <h2>🏰 Магическая Башня</h2>
+                    <p>Уровень: <strong>${gameData.level}</strong></p>
+                    
+                    <div class="tap-area" id="tap-area">
+                        <div class="wizard-avatar">
+                            🧙
+                        </div>
+                        <p>Тапай по магу для сбора маны!</p>
+                        <p style="color: #00bfff; font-size: 14px;">
+                            +${CONFIG.BASE_MANA_PER_TAP} маны за тап
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin: 20px 0;">
+                        <h3>📊 Статистика</h3>
+                        <p>• Ману можно тратить на заклинания</p>
+                        <p>• Используй ежедневные комбо</p>
+                        <p>• Участвуй в дуэлях</p>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                        <h3>🎁 Ежедневное комбо</h3>
+                        <input type="text" 
+                               id="combo-input" 
+                               placeholder="Введи ALT+MANA"
+                               style="width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; margin-bottom: 10px;">
+                        <button class="btn" id="combo-btn">Использовать комбо</button>
+                        <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 10px;">
+                            Дает +${CONFIG.DAILY_COMBO_REWARD} маны раз в день
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getSpellsPage() {
+            return `
+                <div style="text-align: center; padding: 20px;">
+                    <h2>📖 Заклинания</h2>
+                    <p style="margin: 20px 0;">Здесь будут твои заклинания</p>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                        <div style="font-size: 40px;">🔥</div>
+                        <h3>Огненный шар</h3>
+                        <p>Изучено</p>
+                    </div>
+                    <button class="btn" onclick="loadPage('tower')">← Назад в башню</button>
+                </div>
+            `;
+        }
+        
+        function getDuelPage() {
+            return `
+                <div style="text-align: center; padding: 20px;">
+                    <h2>⚔️ Дуэли</h2>
+                    <p style="margin: 20px 0;">Сражайся с другими магами</p>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                        <p>Побед: <strong>0</strong></p>
+                        <p>Поражений: <strong>0</strong></p>
+                        <p>Рейтинг: <strong>1000</strong></p>
+                    </div>
+                    <button class="btn" onclick="startDuel()">Начать дуэль (50 маны)</button>
+                    <button class="btn" onclick="loadPage('tower')" style="background: rgba(255,255,255,0.1);">← Назад</button>
+                </div>
+            `;
+        }
+        
+        function getGuildPage() {
+            return `
+                <div style="text-align: center; padding: 20px;">
+                    <h2>👥 Гильдия</h2>
+                    <p style="margin: 20px 0;">Объединяйся с другими магами</p>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                        <p>Ты пока одинокий маг</p>
+                        <p>Пригласи друзей, чтобы создать гильдию!</p>
+                    </div>
+                    <button class="btn" onclick="loadPage('tower')">← Вернуться в башню</button>
+                </div>
+            `;
+        }
+        
+        function getButtonEmoji(page) {
+            const emojis = {
+                'tower': '🏰',
+                'spells': '📖', 
+                'duel': '⚔️',
+                'guild': '👥'
+            };
+            return emojis[page] || '🏰';
+        }
+        
+        function setupTowerEvents() {
+            // Тап по магу
+            const tapArea = document.getElementById('tap-area');
+            if (tapArea) {
+                tapArea.onclick = function() {
+                    tap();
+                    // Анимация нажатия
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                };
+                
+                // Для мобильных
+                tapArea.ontouchstart = function(e) {
+                    e.preventDefault();
+                    tap();
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                };
+            }
+            
+            // Кнопка комбо
+            const comboBtn = document.getElementById('combo-btn');
+            const comboInput = document.getElementById('combo-input');
+            
+            if (comboBtn) {
+                comboBtn.onclick = function() {
+                    if (comboInput.value.trim()) {
+                        useDailyCombo(comboInput.value.trim());
+                        comboInput.value = '';
+                    } else {
+                        showAlert("Введите комбо!");
+                    }
+                };
+            }
+        }
+        
+        function showFloatingText(text) {
+            const floatText = document.createElement('div');
+            floatText.className = 'floating-text';
+            floatText.textContent = text;
+            
+            document.body.appendChild(floatText);
+            
+            setTimeout(() => {
+                if (floatText.parentNode) {
+                    floatText.parentNode.removeChild(floatText);
+                }
+            }, 1000);
+        }
+        
+        function updateManaDisplay() {
+            const manaElement = document.getElementById('mana-count');
+            if (manaElement) {
+                manaElement.textContent = gameData.mana;
+            }
+        }
+        
+        function showAlert(message) {
+            if (tg && tg.showAlert) {
+                tg.showAlert(message);
+            } else {
+                alert(message);
+            }
+        }
+        
+        function saveGame() {
+            const userId = user ? user.id : 'demo';
+            localStorage.setItem(`wizard_${userId}`, JSON.stringify(gameData));
+        }
+        
+        function loadGame() {
+            const userId = user ? user.id : 'demo';
+            const saved = localStorage.getItem(`wizard_${userId}`);
+            
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    gameData = { ...gameData, ...data };
+                } catch (e) {
+                    console.error('Ошибка загрузки сохранения:', e);
+                }
+            }
+            
+            updateManaDisplay();
+        }
+        
+        // ========== ЗАПУСК ИГРЫ ==========
+        function startGame() {
+            console.log('Запуск игры...');
+            
+            // Инициализация Telegram
+            initTelegram();
+            
+            // Загрузка сохранения
+            loadGame();
+            
+            // Показываем интерфейс
+            document.getElementById('loading').classList.add('hide');
+            document.getElementById('main-ui').classList.remove('hide');
+            document.getElementById('main-ui').classList.add('show');
+            
+            // Загружаем первую страницу
+            loadPage('tower');
+            
+            console.log('Игра запущена!');
+        }
+        
+        // ========== ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function startDuel() {
+            if (gameData.mana < 50) {
+                showAlert("Недостаточно маны для дуэли!");
+                return;
+            }
+            
+            gameData.mana -= 50;
+            
+            // Случайный результат
+            const win = Math.random() > 0.5;
+            
+            if (win) {
+                gameData.mana += 100;
+                showAlert("🏆 Победа! +100 маны");
+            } else {
+                showAlert("💥 Поражение... Мана потрачена");
+            }
+            
+            saveGame();
+            updateManaDisplay();
+        }
+        
+        // ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
+        window.onload = function() {
+            console.log('Страница загружена');
+            setTimeout(startGame, 500);
+        };
+        
+        // Делаем функции глобальными для onclick
+        window.loadPage = loadPage;
+        window.startDuel = startDuel;
+    </script>
+</body>
+</html>
