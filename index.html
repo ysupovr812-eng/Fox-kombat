@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard's Guild | Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪄</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <div id="loading" class="screen">
+            <div class="loader">
+                <div class="crystal"></div>
+                <p>Загрузка магии...</p>
+            </div>
+        </div>
+        
+        <div id="main-ui" class="hidden">
+            <nav class="top-bar">
+                <div class="player-info">
+                    <span id="player-name">Маг</span>
+                    <div class="mana-display">
+                        <span class="mana-icon">✨</span>
+                        <span id="mana-count">100</span>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn active" data-page="tower">🏰</button>
+                    <button class="nav-btn" data-page="spells">📖</button>
+                    <button class="nav-btn" data-page="duel">⚔️</button>
+                    <button class="nav-btn" data-page="guild">👥</button>
+                </div>
+            </nav>
+            
+            <div id="content">
+                <!-- Страницы загружаются сюда -->
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/telegramAPI.js"></script>
+    <script src="assets/js/gameLogic.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
